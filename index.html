@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precision Cut Laser & Fab | WhatsApp Catalog</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wa: {
+                            green: '#25D366',
+                            teal: '#128C7E',
+                            darkTeal: '#075E54',
+                            lightBg: '#E5DDD5',
+                            darkBg: '#0b141a',
+                            chatDark: '#111b21',
+                            cardDark: '#202c33',
+                            borderDark: '#222d34'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Lucide Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for mobile drawers */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 4px;
+        }
+        /* Mobile Frame Styling */
+        .phone-container {
+            max-width: 480px;
+            margin: 0 auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        @media (min-width: 768px) {
+            body {
+                background-color: #0f172a;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex justify-center items-start md:py-6">
+
+    <!-- Mobile Shell / Outer Frame -->
+    <div class="phone-container w-full min-h-screen md:min-h-[92vh] md:max-h-[92vh] bg-wa-darkBg md:rounded-3xl border-0 md:border md:border-slate-800 flex flex-col overflow-hidden relative shadow-2xl">
+
+        <!-- WhatsApp Business Top Header -->
+        <header class="bg-wa-darkTeal text-white p-3 sm:p-4 sticky top-0 z-30 flex flex-col shadow-md shrink-0">
+            <!-- Top App Bar -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white/20 flex items-center justify-center font-black text-slate-950 text-xl shadow">
+                            ⚡
+                        </div>
+                        <div class="absolute -bottom-0.5 -right-0.5 bg-wa-green text-slate-950 text-[9px] rounded-full w-4 h-4 flex items-center justify-center border border-wa-darkTeal font-bold" title="Verified Business">
+                            ✓
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-1.5">
+                            <h1 class="font-bold text-base leading-tight">ProCut Laser & Fab</h1>
+                            <span class="text-wa-green text-xs" title="Official Catalog">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-emerald-100/80 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-wa-green animate-pulse inline-block"></span>
+                            Typically replies in &lt;15 mins
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200 transition" title="Toggle Light/Dark Theme">
+                    <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
+                </button>
+                <button onclick="toggleAdminMode()" id="admin-toggle-btn" class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] flex items-center gap-1 hover:bg-amber-500/30 transition" title="Admin Backend Toggle">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span id="admin-btn-text">Admin</span>
+                </button>
+                <button onclick="openBusinessInfo()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200 transition" title="Shop Info">
+                    <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Search & Filter Bar -->
+        <div class="bg-wa-chatDark border-b border-wa-borderDark p-3 shrink-0 z-20 space-y-2.5">
+            <!-- Admin Quick Add Bar (Hidden by default) -->
+            <div id="admin-banner" class="hidden bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                <div class="flex items-center gap-2 text-amber-300 font-bold">
+                    <i class="fa-solid fa-lock-open text-xs"></i>
+                    <span>Admin Mode Active</span>
+                </div>
+                <button onclick="openAddProductModal()" class="bg-amber-400 text-slate-950 font-black px-3 py-1 rounded-lg text-xs flex items-center gap-1 hover:bg-amber-300 transition shadow">
+                    <i class="fa-solid fa-plus"></i> Add Product
+                </button>
+            </div>
+
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                <input type="text" id="catalog-search" oninput="filterCatalog()" placeholder="Search parts, metals, brackets, signs..." class="w-full bg-wa-cardDark text-slate-200 placeholder-slate-400 pl-9 pr-8 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-wa-green border border-wa-borderDark">
+                <button onclick="clearSearch()" id="clear-search-btn" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-200 text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <button onclick="sendDirectGeneralInquiry()" class="bg-wa-green hover:bg-emerald-400 text-slate-950 font-black px-4 py-2.5 rounded-full text-xs flex items-center gap-2 shadow-lg transition transform active:scale-95">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span>Chat on WhatsApp</span>
+            </button>
+        </div>
+
+        <!-- ITEM DETAIL DRAWER MODAL -->
+        <div id="item-modal" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-end opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="item-modal-card" class="bg-wa-chatDark border-t border-wa-borderDark rounded-t-3xl max-h-[90%] flex flex-col transform translate-y-full transition-transform duration-300 overflow-hidden">
+                
+                <!-- Modal Drag Bar / Header -->
+                <div class="p-3 border-b border-wa-borderDark flex justify-between items-center bg-wa-cardDark shrink-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold px-2 py-0.5 rounded-full" id="modal-category">Bracket</span>
+                        <span class="text-xs text-slate-400 font-mono" id="modal-sku">SKU: CUT-104</span>
+                    </div>
+                    <button onclick="closeModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Content Scrollable -->
+                <div class="p-4 overflow-y-auto space-y-4 text-xs">
+                    <!-- SVG Product Graphic Placeholder -->
+                    <div id="modal-graphic" class="w-full h-44 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-wa-borderDark flex items-center justify-center p-4 relative overflow-hidden">
+                        <!-- SVG dynamically inserted -->
+                    </div>
+
+                    <div>
+                        <h2 id="modal-title" class="text-lg font-black text-white">Custom Laser Cut Plate</h2>
+                        <div class="flex justify-between items-baseline mt-1">
+                            <span id="modal-price" class="text-base font-extrabold text-wa-green">$45.00 / unit</span>
+                            <span class="text-[11px] text-slate-400">Lead time: 24-48 hrs</span>
+                        </div>
+                        <p id="modal-desc" class="text-slate-300 mt-2 leading-relaxed">High precision laser cut component designed for custom mounting and bracket setups.</p>
+                    </div>
+
+                    <hr class="border-wa-borderDark">
+
+                    <!-- Material Configurator Options -->
+                    <div class="space-y-3">
+                        <label class="block font-bold text-slate-200 text-xs">1. Select Material Metal</label>
+                        <div class="grid grid-cols-3 gap-2" id="material-selector">
+                            <button onclick="selectMaterial('Mild Steel (A36)', 1.0)" class="mat-btn p-2 rounded-xl border border-wa-green bg-wa-green/10 text-wa-green font-bold text-center transition">Mild Steel</button>
+                            <button onclick="selectMaterial('Stainless 304', 1.35)" class="mat-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition">Stainless 304</button>
+                            <button onclick="selectMaterial('Aluminum 6061', 1.25)" class="mat-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition">Aluminum 6061</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block font-bold text-slate-200 text-xs">2. Metal Thickness</label>
+                        <div class="grid grid-cols-3 gap-2" id="thickness-selector">
+                            <button onclick="selectThickness('11 Gauge (3.0mm)', 1.0)" class="thick-btn p-2 rounded-xl border border-wa-green bg-wa-green/10 text-wa-green font-bold text-center transition">11 Ga (3mm)</button>
+                            <button onclick="selectThickness('1/4 inch (6.35mm)', 1.4)" class="thick-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition">1/4" (6.3mm)</button>
+                            <button onclick="selectThickness('3/8 inch (9.5mm)', 1.8)" class="thick-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition">3/8" (9.5mm)</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block font-bold text-slate-200 text-xs">Quantity & Dimension Notes</label>
+                        <div class="flex space-x-2">
+                            <div class="w-1/3">
+                                <span class="text-[10px] text-slate-400">Qty</span>
+                                <input type="number" id="modal-qty" value="5" min="1" onchange="calculateModalPrice()" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2 text-center font-bold text-white focus:outline-none focus:ring-1 focus:ring-wa-green">
+                            </div>
+                            <div class="w-2/3">
+                                <span class="text-[10px] text-slate-400">Custom Dimensions / Notes</span>
+                                <input type="text" id="modal-notes" placeholder="e.g. 12x24 inch, 4x hole pattern" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2 text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-wa-green">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Bottom Actions -->
+                <div class="p-3 border-t border-wa-borderDark bg-wa-cardDark flex space-x-2 shrink-0">
+                    <button onclick="addToCartFromModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        <span>Add to Quote Draft</span>
+                    </button>
+                    <button onclick="sendModalWhatsAppDirect()" class="flex-1 bg-wa-green hover:bg-emerald-400 text-slate-950 font-black py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-md">
+                        <i class="fa-brands fa-whatsapp text-base"></i>
+                        <span>Inquire Now</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CART / QUOTE DRAFT DRAWER MODAL -->
+        <div id="cart-modal" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-end opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="cart-modal-card" class="bg-wa-chatDark border-t border-wa-borderDark rounded-t-3xl max-h-[85%] flex flex-col transform translate-y-full transition-transform duration-300 overflow-hidden">
+                <div class="p-3 border-b border-wa-borderDark flex justify-between items-center bg-wa-cardDark shrink-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-clipboard-list text-wa-green"></i>
+                        <span class="font-bold text-sm text-white">Your WhatsApp Quote Draft</span>
+                    </div>
+                    <button onclick="closeCartDrawer()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Cart Items List -->
+                <div class="p-4 overflow-y-auto space-y-3 flex-1 text-xs" id="cart-items-container">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Cart Footer -->
+                <div class="p-3 border-t border-wa-borderDark bg-wa-cardDark space-y-2 shrink-0">
+                    <div class="flex justify-between items-center text-xs px-1">
+                        <span class="text-slate-400">Est. Total Items:</span>
+                        <span id="cart-total-price" class="text-base font-extrabold text-wa-green">$0.00</span>
+                    </div>
+                    <button onclick="sendFullCartWhatsApp()" class="w-full bg-wa-green hover:bg-emerald-400 text-slate-950 font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Send WhatsApp Inquiry Message</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Information Drawer -->
+        <div id="info-modal" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-end opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="info-modal-card" class="bg-wa-chatDark border-t border-wa-borderDark rounded-t-3xl p-5 space-y-4 text-xs transform translate-y-full transition-transform duration-300">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-black text-sm text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-400"></i> ProCut Laser & Fab Specs
+                    </h3>
+                    <button onclick="closeBusinessInfo()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="space-y-2 text-slate-300">
+                    <p><strong>Shop Equipment:</strong> 12kW Fiber Laser, CNC Press Brake 150-Ton, Deburring & Polishing Station.</p>
+                    <p><strong>Tolerances:</strong> ±0.005 inches (±0.12mm)</p>
+                    <p><strong>Accepted Formats:</strong> .DXF, .DWG, .STEP, .IGES, .PDF</p>
+                    <p><strong>Location:</strong> 1420 Metalwork Way, Industrial District, Chicago IL</p>
+                </div>
+                <button onclick="closeBusinessInfo()" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl">Close Info</button>
+            </div>
+        </div>
+
+        <!-- ADD / EDIT PRODUCT BACKEND MODAL -->
+        <div id="admin-product-modal" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-end opacity-0 pointer-events-none transition-opacity duration-300">
+            <div id="admin-product-card" class="bg-wa-chatDark border-t border-wa-borderDark rounded-t-3xl max-h-[90%] flex flex-col transform translate-y-full transition-transform duration-300 overflow-hidden">
+                <div class="p-3 border-b border-wa-borderDark flex justify-between items-center bg-wa-cardDark shrink-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-box-open text-amber-400"></i>
+                        <span class="font-bold text-sm text-white" id="admin-modal-title">Add New Product to Catalog</span>
+                    </div>
+                    <button onclick="closeAddProductModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form onsubmit="handleSaveProduct(event)" class="p-4 overflow-y-auto space-y-3 text-xs">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Product Image</label>
+                        <input type="file" id="admin-input-image" accept="image/*" onchange="previewAdminImage(event)" class="w-full text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-300 cursor-pointer">
+                        <div id="admin-image-preview-container" class="hidden mt-2 relative w-full h-28 rounded-xl bg-slate-900 border border-wa-borderDark overflow-hidden flex items-center justify-center">
+                            <img id="admin-image-preview" src="" alt="Product Preview" class="w-full h-full object-cover">
+                            <button type="button" onclick="clearAdminImagePreview()" class="absolute top-1 right-1 bg-slate-950/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-500">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Product Title</label>
+                        <input type="text" id="admin-input-title" required placeholder="e.g. Laser Cut Gusset Bracket" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-slate-300 font-bold mb-1">Category</label>
+                            <select id="admin-input-category" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                                <option value="brackets">Brackets & Parts</option>
+                                <option value="signage">Custom Signage</option>
+                                <option value="plates">Laser Cut Plates</option>
+                                <option value="enclosures">Enclosures & Kits</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-bold mb-1">SKU</label>
+                            <input type="text" id="admin-input-sku" required placeholder="FAB-BRK-10" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-slate-300 font-bold mb-1">Base Price ($)</label>
+                            <input type="number" step="0.01" id="admin-input-price" required placeholder="25.00" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-bold mb-1">Unit Label</label>
+                            <input type="text" id="admin-input-unit" placeholder="per unit" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Material Spec Tag</label>
+                        <input type="text" id="admin-input-specs" placeholder="Mild Steel • 1/4 inch" class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Description</label>
+                        <textarea id="admin-input-desc" rows="3" placeholder="High precision laser cut component..." class="w-full bg-wa-cardDark border border-wa-borderDark rounded-xl p-2.5 text-white focus:ring-1 focus:ring-amber-400 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 rounded-xl transition shadow">
+                            Save Product to Catalog
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        // WhatsApp Business Phone Number Target (Replace with actual shop number)
+        const SHOP_PHONE = "15550192834";
+
+        // Default Catalog Database
+        const INITIAL_PRODUCTS = [
+            {
+                id: 1,
+                title: "Custom Steel Mounting Brackets",
+                category: "brackets",
+                sku: "FAB-BRK-01",
+                basePrice: 18.50,
+                unitTag: "per unit",
+                specsTag: "Mild Steel • 10ga to 1/4\"",
+                leadTime: "24-48 Hours",
+                desc: "Laser cut L-brackets and heavy-duty structural gussets. Precision hole mounting and clean edge radius.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-amber-500 fill-current"><path d="M20,20 L20,80 L80,80 L80,60 L40,60 L40,20 Z" opacity="0.9"/><circle cx="30" cy="35" r="4" fill="#0b141a"/><circle cx="30" cy="65" r="4" fill="#0b141a"/><circle cx="60" cy="70" r="4" fill="#0b141a"/></svg>`
+            },
+            {
+                id: 2,
+                title: "Precision Laser Cut Flange Plates",
+                category: "plates",
+                sku: "FAB-PLT-08",
+                basePrice: 32.00,
+                unitTag: "per sheet plate",
+                specsTag: "Stainless 304 • ±0.005\" Tolerance",
+                leadTime: "Same Day Avail",
+                desc: "Pipe flanges, structural base plates, and motor mount plates cut cleanly without burrs.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-emerald-400 stroke-current stroke-2 fill-none"><circle cx="50" cy="50" r="35" fill="rgba(37, 211, 102, 0.1)"/><circle cx="50" cy="50" r="16"/><circle cx="50" cy="24" r="3.5" fill="currentColor"/><circle cx="50" cy="76" r="3.5" fill="currentColor"/><circle cx="24" cy="50" r="3.5" fill="currentColor"/><circle cx="76" cy="50" r="3.5" fill="currentColor"/></svg>`
+            },
+            {
+                id: 3,
+                title: "Decorative Laser Screen Panels",
+                category: "signage",
+                sku: "FAB-SCR-12",
+                basePrice: 120.00,
+                unitTag: "per 4x8 ft sheet",
+                specsTag: "Aluminum 6061 • Architectural",
+                leadTime: "3-5 Days",
+                desc: "Intricate geometric and privacy screens for architectural facades, gates, and interior divides.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-blue-400 fill-current"><rect x="15" y="15" width="70" height="70" rx="6" fill="rgba(59, 130, 246, 0.15)" stroke="currentColor" stroke-width="2"/><polygon points="35,25 50,40 35,55 20,40"/><polygon points="65,25 80,40 65,55 50,40"/><polygon points="50,50 65,65 50,80 35,65"/></svg>`
+            },
+            {
+                id: 4,
+                title: "Custom Steel Fire Pit Assembly Kit",
+                category: "enclosures",
+                sku: "FAB-KIT-04",
+                basePrice: 185.00,
+                unitTag: "complete kit",
+                specsTag: "3/16\" Corten / Mild Steel",
+                leadTime: "2 Days",
+                desc: "5-piece slot-together modular fire pit kit with custom CNC cut logos or flame patterns.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-orange-500 fill-current"><path d="M20,70 L35,30 L65,30 L80,70 Z" opacity="0.8"/><path d="M50,40 Q55,55 60,60 Q50,75 40,60 Q45,55 50,40 Z" fill="#f59e0b"/></svg>`
+            },
+            {
+                id: 5,
+                title: "Custom Metal Business Signage",
+                category: "signage",
+                sku: "FAB-SGN-99",
+                basePrice: 95.00,
+                unitTag: "custom quote",
+                specsTag: "Powder Coated • Backlit Ready",
+                leadTime: "2-4 Days",
+                desc: "Multi-layered metal business logos with standoffs for LED backlighting.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-purple-400 fill-current"><rect x="10" y="30" width="80" height="40" rx="8" fill="rgba(168, 85, 247, 0.2)" stroke="currentColor" stroke-width="2"/><text x="50" y="55" font-family="sans-serif" font-weight="900" font-size="16" fill="currentColor" text-anchor="middle">LOGO</text></svg>`
+            },
+            {
+                id: 6,
+                title: "CNC Bent Electrical Enclosures",
+                category: "enclosures",
+                sku: "FAB-ENC-02",
+                basePrice: 140.00,
+                unitTag: "per unit",
+                specsTag: "Aluminum • PEM Studs Installed",
+                leadTime: "3 Days",
+                desc: "Full CNC press brake formed aluminum boxes with inserted self-clinching PEM hardware.",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-cyan-400 fill-current"><rect x="20" y="25" width="60" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><line x1="20" y1="40" x2="80" y2="40" stroke="currentColor" stroke-width="2"/><circle cx="70" cy="32" r="3"/></svg>`
+            }
+        ];
+
+        // Load Products from Local Storage if present
+        let PRODUCTS = JSON.parse(localStorage.getItem('procut_catalog_items')) || INITIAL_PRODUCTS;
+
+        // State Tracking
+        let activeCategory = 'all';
+        let cart = [];
+        let activeModalItem = null;
+        let selectedMaterial = "Mild Steel (A36)";
+        let materialMult = 1.0;
+        let selectedThickness = "11 Gauge (3.0mm)";
+        let thicknessMult = 1.0;
+        let isAdminMode = false;
+        let adminUploadedImageData = "";
+
+        // Image Upload Preview in Admin Form
+        function previewAdminImage(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    adminUploadedImageData = event.target.result;
+                    document.getElementById('admin-image-preview').src = adminUploadedImageData;
+                    document.getElementById('admin-image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearAdminImagePreview() {
+            adminUploadedImageData = "";
+            document.getElementById('admin-input-image').value = "";
+            document.getElementById('admin-image-preview').src = "";
+            document.getElementById('admin-image-preview-container').classList.add('hidden');
+        }
+
+        // Toggle Admin Mode
+        function toggleAdminMode() {
+            isAdminMode = !isAdminMode;
+            const banner = document.getElementById('admin-banner');
+            const btnText = document.getElementById('admin-btn-text');
+            
+            if (isAdminMode) {
+                banner.classList.remove('hidden');
+                btnText.innerText = "Exit Admin";
+            } else {
+                banner.classList.add('hidden');
+                btnText.innerText = "Admin";
+            }
+            renderCatalog();
+        }
+
+        // Render Catalog Grid
+        function renderCatalog() {
+            const container = document.getElementById('catalog-container');
+            const searchQuery = document.getElementById('catalog-search').value.toLowerCase();
+
+            const filtered = PRODUCTS.filter(p => {
+                const matchesCat = (activeCategory === 'all' || p.category === activeCategory);
+                const matchesSearch = p.title.toLowerCase().includes(searchQuery) ||
+                                      p.specsTag.toLowerCase().includes(searchQuery) ||
+                                      p.desc.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2 text-slate-600"></i>
+                        <p class="text-xs font-semibold">No matching laser cut parts found.</p>
+                        <button onclick="clearSearch()" class="mt-2 text-wa-green text-xs font-bold underline">Clear Filters</button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div onclick="openItemModal(${item.id})" class="bg-wa-cardDark hover:bg-slate-800/80 border border-wa-borderDark rounded-2xl p-3 flex space-x-3 cursor-pointer transition transform active:scale-[0.99] group relative">
+                    <div class="w-24 h-24 rounded-xl bg-slate-900 border border-wa-borderDark flex items-center justify-center shrink-0 p-1 relative overflow-hidden">
+                        ${item.image ? `<img src="${item.image}" class="w-full h-full object-cover rounded-lg" alt="${item.title}">` : (item.svg || `<svg viewBox="0 0 100 100" class="w-24 h-24 text-amber-500 fill-current"><path d="M20,20 L20,80 L80,80 L80,60 L40,60 L40,20 Z" opacity="0.9"/></svg>`)}
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-black text-sm text-white group-hover:text-wa-green transition leading-snug">${item.title}</h3>
+                                ${isAdminMode ? `
+                                    <button onclick="event.stopPropagation(); deleteProduct(${item.id})" class="text-red-400 hover:text-red-300 p-1 text-xs" title="Delete Product">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <span class="inline-block mt-1 text-[10px] text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">${item.specsTag}</span>
+                            <p class="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-snug">${item.desc}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2 pt-1.5 border-t border-wa-borderDark/60">
+                            <div>
+                                <span class="text-xs font-extrabold text-wa-green">$${Number(item.basePrice).toFixed(2)}</span>
+                                <span class="text-[10px] text-slate-400 font-normal"> ${item.unitTag}</span>
+                            </div>
+                            <button onclick="event.stopPropagation(); openItemModal(${item.id})" class="bg-wa-green/10 text-wa-green hover:bg-wa-green hover:text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1">
+                                <span>Order / Specs</span>
+                                <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add Product Backend Drawer
+        function openAddProductModal() {
+            clearAdminImagePreview();
+            const modal = document.getElementById('admin-product-modal');
+            const card = document.getElementById('admin-product-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('translate-y-full');
+        }
+
+        function closeAddProductModal() {
+            const modal = document.getElementById('admin-product-modal');
+            const card = document.getElementById('admin-product-card');
+            card.classList.add('translate-y-full');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function handleSaveProduct(e) {
+            e.preventDefault();
+            const newProd = {
+                id: Date.now(),
+                title: document.getElementById('admin-input-title').value,
+                category: document.getElementById('admin-input-category').value,
+                sku: document.getElementById('admin-input-sku').value,
+                basePrice: parseFloat(document.getElementById('admin-input-price').value) || 0,
+                unitTag: document.getElementById('admin-input-unit').value || "per unit",
+                specsTag: document.getElementById('admin-input-specs').value || "Custom Metal",
+                leadTime: "24-48 Hours",
+                desc: document.getElementById('admin-input-desc').value || "Custom cut metal component.",
+                image: adminUploadedImageData || "",
+                svg: `<svg viewBox="0 0 100 100" class="w-24 h-24 text-amber-400 stroke-current stroke-2 fill-none"><circle cx="50" cy="50" r="30"/><rect x="35" y="35" width="30" height="30" fill="rgba(251, 191, 36, 0.2)"/></svg>`
+            };
+
+            PRODUCTS.unshift(newProd);
+            localStorage.setItem('procut_catalog_items', JSON.stringify(PRODUCTS));
+            renderCatalog();
+            closeAddProductModal();
+
+            // Reset Form Inputs & Image Preview
+            clearAdminImagePreview();
+            document.getElementById('admin-input-title').value = '';
+            document.getElementById('admin-input-sku').value = '';
+            document.getElementById('admin-input-price').value = '';
+            document.getElementById('admin-input-specs').value = '';
+            document.getElementById('admin-input-desc').value = '';
+        }
+
+        function deleteProduct(id) {
+            PRODUCTS = PRODUCTS.filter(p => p.id !== id);
+            localStorage.setItem('procut_catalog_items', JSON.stringify(PRODUCTS));
+            renderCatalog();
+        }
+
+        // Filter Handlers
+        function selectCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                btn.className = "cat-pill px-3 py-1 rounded-full bg-wa-cardDark text-slate-300 hover:text-white border border-wa-borderDark whitespace-nowrap transition";
+            });
+            const activeBtn = document.getElementById(`cat-${cat}`);
+            if (activeBtn) {
+                activeBtn.className = "cat-pill px-3 py-1 rounded-full bg-wa-green text-slate-950 font-bold whitespace-nowrap transition";
+            }
+            renderCatalog();
+        }
+
+        function filterCatalog() {
+            const val = document.getElementById('catalog-search').value;
+            const clearBtn = document.getElementById('clear-search-btn');
+            if (val) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderCatalog();
+        }
+
+        function clearSearch() {
+            document.getElementById('catalog-search').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            renderCatalog();
+        }
+
+        // Item Detail Modal Handler
+        function openItemModal(id) {
+            activeModalItem = PRODUCTS.find(p => p.id === id);
+            if (!activeModalItem) return;
+
+            document.getElementById('modal-title').innerText = activeModalItem.title;
+            document.getElementById('modal-category').innerText = activeModalItem.category.toUpperCase();
+            document.getElementById('modal-sku').innerText = `SKU: ${activeModalItem.sku}`;
+            document.getElementById('modal-desc').innerText = activeModalItem.desc;
+
+            // Render uploaded image or default SVG
+            const graphicContainer = document.getElementById('modal-graphic');
+            if (activeModalItem.image) {
+                graphicContainer.innerHTML = `<img src="${activeModalItem.image}" class="w-full h-full object-cover rounded-xl" alt="${activeModalItem.title}">`;
+            } else {
+                graphicContainer.innerHTML = activeModalItem.svg;
+            }
+
+            // Reset configurator defaults
+            selectedMaterial = "Mild Steel (A36)";
+            materialMult = 1.0;
+            selectedThickness = "11 Gauge (3.0mm)";
+            thicknessMult = 1.0;
+            document.getElementById('modal-qty').value = 5;
+            document.getElementById('modal-notes').value = "";
+
+            updateConfiguratorUI();
+            calculateModalPrice();
+
+            const modal = document.getElementById('item-modal');
+            const card = document.getElementById('item-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('translate-y-full');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('item-modal');
+            const card = document.getElementById('item-modal-card');
+            card.classList.add('translate-y-full');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function selectMaterial(matName, mult) {
+            selectedMaterial = matName;
+            materialMult = mult;
+            updateConfiguratorUI();
+            calculateModalPrice();
+        }
+
+        function selectThickness(thickName, mult) {
+            selectedThickness = thickName;
+            thicknessMult = mult;
+            updateConfiguratorUI();
+            calculateModalPrice();
+        }
+
+        function updateConfiguratorUI() {
+            // Material Buttons
+            const matBtns = document.querySelectorAll('#material-selector .mat-btn');
+            matBtns.forEach(b => {
+                if (b.innerText.includes(selectedMaterial.split(' ')[0])) {
+                    b.className = "mat-btn p-2 rounded-xl border border-wa-green bg-wa-green/10 text-wa-green font-bold text-center transition";
+                } else {
+                    b.className = "mat-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition";
+                }
+            });
+
+            // Thickness Buttons
+            const thickBtns = document.querySelectorAll('#thickness-selector .thick-btn');
+            thickBtns.forEach(b => {
+                if (b.innerText.includes(selectedThickness.split(' ')[0])) {
+                    b.className = "thick-btn p-2 rounded-xl border border-wa-green bg-wa-green/10 text-wa-green font-bold text-center transition";
+                } else {
+                    b.className = "thick-btn p-2 rounded-xl border border-wa-borderDark bg-wa-cardDark text-slate-300 font-medium text-center transition";
+                }
+            });
+        }
+
+        function calculateModalPrice() {
+            if (!activeModalItem) return;
+            const qty = parseInt(document.getElementById('modal-qty').value) || 1;
+            const unitPrice = activeModalItem.basePrice * materialMult * thicknessMult;
+            const total = unitPrice * qty;
+            document.getElementById('modal-price').innerText = `$${total.toFixed(2)} (${qty} units @ $${unitPrice.toFixed(2)}/ea)`;
+        }
+
+        // WhatsApp Direct Link Generator for Single Item
+        function sendModalWhatsAppDirect() {
+            if (!activeModalItem) return;
+            const qty = document.getElementById('modal-qty').value;
+            const notes = document.getElementById('modal-notes').value || "None";
+            const unitPrice = (activeModalItem.basePrice * materialMult * thicknessMult).toFixed(2);
+            const total = (unitPrice * qty).toFixed(2);
+
+            const message = `Hello ProCut Laser! ⚡ I would like to inquire about ordering this item from your catalog:
+
+📦 *Item:* ${activeModalItem.title} (${activeModalItem.sku})
+🔩 *Material:* ${selectedMaterial}
+📐 *Thickness:* ${selectedThickness}
+🔢 *Quantity:* ${qty} units
+💵 *Estimated Cost:* $${total}
+📝 *Custom Notes/Size:* ${notes}
+
+Can you verify lead time & DXF file upload steps?`;
+
+            const encoded = encodeURIComponent(message);
+            window.open(`https://wa.me/${SHOP_PHONE}?text=${encoded}`, '_blank');
+        }
+
+        // Add Item to Cart
+        function addToCartFromModal() {
+            if (!activeModalItem) return;
+            const qty = parseInt(document.getElementById('modal-qty').value) || 1;
+            const notes = document.getElementById('modal-notes').value || "";
+            const unitPrice = activeModalItem.basePrice * materialMult * thicknessMult;
+
+            cart.push({
+                item: activeModalItem,
+                material: selectedMaterial,
+                thickness: selectedThickness,
+                qty: qty,
+                notes: notes,
+                totalPrice: unitPrice * qty
+            });
+
+            updateCartBadge();
+            closeModal();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-badge-count');
+            if (cart.length > 0) {
+                badge.innerText = cart.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Cart Drawer
+        function openCartDrawer() {
+            renderCartItems();
+            const modal = document.getElementById('cart-modal');
+            const card = document.getElementById('cart-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('translate-y-full');
+        }
+
+        function closeCartDrawer() {
+            const modal = document.getElementById('cart-modal');
+            const card = document.getElementById('cart-modal-card');
+            card.classList.add('translate-y-full');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <i class="fa-solid fa-basket-shopping text-3xl mb-2 text-slate-600"></i>
+                        <p>Your quote draft is empty.</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Browse items and customize specifications to add to your message.</p>
+                    </div>`;
+                document.getElementById('cart-total-price').innerText = "$0.00";
+                return;
+            }
+
+            let sum = 0;
+            container.innerHTML = cart.map((c, i) => {
+                sum += c.totalPrice;
+                return `
+                    <div class="bg-wa-cardDark p-3 rounded-xl border border-wa-borderDark flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-white text-xs">${c.item.title}</h4>
+                            <div class="text-[10px] text-slate-400 mt-0.5">${c.material} • ${c.thickness}</div>
+                            <div class="text-[10px] text-amber-400 mt-0.5">Qty: ${c.qty} ${c.notes ? '• Note: ' + c.notes : ''}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-extrabold text-wa-green text-xs">$${c.totalPrice.toFixed(2)}</div>
+                            <button onclick="removeFromCart(${i})" class="text-red-400 hover:text-red-300 text-[10px] mt-1">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cart-total-price').innerText = `$${sum.toFixed(2)}`;
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function sendFullCartWhatsApp() {
+            if (cart.length === 0) return;
+            let sum = 0;
+            let itemsText = cart.map((c, i) => {
+                sum += c.totalPrice;
+                return `${i+1}. *${c.item.title}*\n   • Mat: ${c.material} (${c.thickness})\n   • Qty: ${c.qty} unit(s) - Est: $${c.totalPrice.toFixed(2)}\n   • Specs: ${c.notes || 'N/A'}`;
+            }).join('\n\n');
+
+            const message = `Hello ProCut Laser Team! ⚡ I have prepared a custom Quote Inquiry List:
+
+${itemsText}
+
+-----------------------------
+💵 *Total Estimated Order:* $${sum.toFixed(2)}
+
+Please let me know how to submit my DXF/STEP files for production scheduling!`;
+
+            const encoded = encodeURIComponent(message);
+            window.open(`https://wa.me/${SHOP_PHONE}?text=${encoded}`, '_blank');
+        }
+
+        function sendDirectGeneralInquiry() {
+            const message = `Hi ProCut Laser! ⚡ I have a custom metal fabrication / laser cutting question. Could you assist me with pricing and tolerances?`;
+            window.open(`https://wa.me/${SHOP_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // Shop Info Drawer
+        function openBusinessInfo() {
+            const modal = document.getElementById('info-modal');
+            const card = document.getElementById('info-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('translate-y-full');
+        }
+
+        function closeBusinessInfo() {
+            const modal = document.getElementById('info-modal');
+            const card = document.getElementById('info-modal-card');
+            card.classList.add('translate-y-full');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // Dark / Light Theme Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = "fa-solid fa-moon text-sm";
+            } else {
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-sun text-sm";
+            }
+        }
+
+        // Init
+        window.onload = function() {
+            renderCatalog();
+        };
+    </script>
+</body>
+</html>
