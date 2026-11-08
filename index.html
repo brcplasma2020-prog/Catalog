@@ -83,7 +83,7 @@
                     <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
                     <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
                 </div>
-                <p class="text-xs text-slate-300">Upload DXF files with smart profile-anchored bounding boxes.</p>
+                <p class="text-xs text-slate-300">Upload DXF files with dynamic boundary-anchored feature mapping.</p>
             </div>
             <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
                 <i class="fa-solid fa-compass-drafting text-sm"></i>
@@ -414,7 +414,7 @@
             }
         }
 
-        // DXF Parser with Main-Profile Bounding Anchoring to keep outlier holes inside bounds
+        // DXF Parser with Dynamic Geometric Boundary Anchoring for Orphaned Features
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -484,8 +484,7 @@
                     }
                 }
 
-                // Step 1: Calculate bounding box primarily from main structural geometry (Lines & Polylines) 
-                // to ignore outlier/unanchored origin points of rogue circles
+                // Step 1: Calculate precise profile bounding box from structural lines/polylines
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 let foundGeometry = false;
 
@@ -507,17 +506,6 @@
                     }
                 });
 
-                // If no lines found, fallback to include circles
-                if (!foundGeometry || minX === Infinity) {
-                    entities.forEach(ent => {
-                        if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
-                            minX = Math.min(minX, ent.cx - ent.r); maxX = Math.max(maxX, ent.cx + ent.r);
-                            minY = Math.min(minY, ent.cy - ent.r); maxY = Math.max(maxY, ent.cy + ent.r);
-                            foundGeometry = true;
-                        }
-                    });
-                }
-
                 if (!foundGeometry || minX === Infinity || minX === maxX) {
                     const cx = canvas.width / 2, cy = canvas.height / 2;
                     ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
@@ -527,25 +515,30 @@
                     return;
                 }
 
-                const dxfW = maxX - minX || 1;
-                const dxfH = maxY - minY || 1;
+                const dxfW = maxX - minX;
+                const dxfH = maxY - minY;
                 const padding = 25;
                 const scale = Math.min((canvas.width - padding * 2) / dxfW, (canvas.height - padding * 2) / dxfH);
                 
                 const toCanvasX = (x) => padding + (x - minX) * scale;
                 const toCanvasY = (y) => canvas.height - (padding + (y - minY) * scale);
 
+                // Step 2: Render structural entities and dynamically correct orphaned entities
                 entities.forEach(ent => {
                     if (ent.type === 'LINE') {
                         ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.y2)); ctx.stroke();
                     } else if (ent.type === 'CIRCLE') {
-                        // If circle coordinates fall way outside the main profile bounds, map them relative to the profile center
                         let cx = ent.cx, cy = ent.cy;
+                        
+                        // Geometric Orphan Detection & Dynamic Shift:
                         if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
-                            cx = minX + (dxfW * 0.25); // auto-anchor inside left portion of step profile
-                            cy = minY + (dxfH * 0.25);
+                            let relX = (cx - minX) / (dxfW || 1);
+                            let relY = (cy - minY) / (dxfH || 1);
+                            cx = minX + Math.min(0.85, Math.max(0.15, Math.abs(relX % 1))) * dxfW;
+                            cy = minY + Math.min(0.85, Math.max(0.15, Math.abs(relY % 1))) * dxfH;
                         }
+
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.arc(toCanvasX(cx), toCanvasY(cy), ent.r * scale, 0, Math.PI * 2); ctx.stroke();
                     } else if (ent.type === 'ARC') {
@@ -659,7 +652,7 @@
                     <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <circle cx="${120 + radius - offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <circle cx="120" cy="${70 + radius - offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="${120 - radius + offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <text x="120" y="74" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">Ø ${w} ${unitSymbol}</text>
                 `;
             } else if (shape === 'l_bracket') {
@@ -705,7 +698,7 @@
                 });
             } else {
                 dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
                 dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
@@ -761,7 +754,7 @@
         function openQrModal() {
             const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/Catalog/');
             document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${targetUrl}`;
-            document.getElementById('qrModal').classList.add('hidden');
+            document.getElementById('qrModal').classList.remove('hidden');
         }
         function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
         function openDrawer(id) {
