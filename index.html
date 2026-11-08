@@ -83,7 +83,7 @@
                     <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
                     <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
                 </div>
-                <p class="text-xs text-slate-300">Upload DXF files with full arc radius parsing, or build shapes with active edge-offset scaling.</p>
+                <p class="text-xs text-slate-300">Upload DXF files with full Bulge Arc & Radius parsing, or build shapes with active edge-offset scaling.</p>
             </div>
             <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
                 <i class="fa-solid fa-compass-drafting text-sm"></i>
@@ -147,7 +147,7 @@
 
                         <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-center">
                             <div class="text-[10px] text-slate-400 mb-1 font-mono flex items-center justify-between px-1">
-                                <span>2D DXF Vector Render (Arcs & Radii)</span>
+                                <span>2D DXF Vector Render (Bulge Arcs & Circles)</span>
                                 <span id="previewUnitBadge" class="text-amber-400 font-bold">Inches</span>
                             </div>
                             <canvas id="uploadPreviewCanvas" class="w-full h-44 bg-slate-900 rounded border border-slate-800"></canvas>
@@ -414,7 +414,7 @@
             }
         }
 
-        // Full DXF Arc / Radius Canvas Renderer
+        // Advanced DXF Parser supporting Circles, Arcs, and Polyline Bulges (Radii)
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -439,6 +439,7 @@
                 let entities = [];
                 let currentEntity = null;
                 let code = null;
+                let polyPoints = [];
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
@@ -447,11 +448,33 @@
                     } else {
                         const value = line;
                         if (code === 0) {
-                            if (currentEntity) entities.push(currentEntity);
-                            currentEntity = { type: value, x1: 0, y1: 0, x2: 0, y2: 0, cx: 0, cy: 0, r: 0, startAngle: 0, endAngle: 360 };
+                            if (currentEntity) {
+                                if (currentEntity.type === 'POLYLINE' && polyPoints.length > 1) {
+                                    entities.push({ type: 'POLYLINE_PATH', points: polyPoints });
+                                    polyPoints = [];
+                                }
+                                entities.push(currentEntity);
+                            }
+                            currentEntity = { type: value, x1: 0, y1: 0, x2: 0, y2: 0, cx: 0, cy: 0, r: 0, startAngle: 0, endAngle: 360, bulge: 0 };
+                        } else if (code === 10) {
+                            if (currentEntity && currentEntity.type === 'VERTEX') {
+                                polyPoints.push({ x: parseFloat(value), y: 0, bulge: 0 });
+                            } else if (currentEntity) {
+                                currentEntity.x1 = currentEntity.cx = parseFloat(value);
+                            }
+                        } else if (code === 20) {
+                            if (currentEntity && currentEntity.type === 'VERTEX' && polyPoints.length > 0) {
+                                polyPoints[polyPoints.length - 1].y = parseFloat(value);
+                            } else if (currentEntity) {
+                                currentEntity.y1 = currentEntity.cy = parseFloat(value);
+                            }
+                        } else if (code === 42) {
+                            if (currentEntity && currentEntity.type === 'VERTEX' && polyPoints.length > 0) {
+                                polyPoints[polyPoints.length - 1].bulge = parseFloat(value);
+                            } else if (currentEntity) {
+                                currentEntity.bulge = parseFloat(value);
+                            }
                         } else if (currentEntity) {
-                            if (code === 10) currentEntity.x1 = currentEntity.cx = parseFloat(value);
-                            if (code === 20) currentEntity.y1 = currentEntity.cy = parseFloat(value);
                             if (code === 11) currentEntity.x2 = parseFloat(value);
                             if (code === 21) currentEntity.y2 = parseFloat(value);
                             if (code === 40) currentEntity.r = parseFloat(value);
@@ -474,6 +497,12 @@
                     } else if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
                         minX = Math.min(minX, ent.cx - ent.r); maxX = Math.max(maxX, ent.cx + ent.r);
                         minY = Math.min(minY, ent.cy - ent.r); maxY = Math.max(maxY, ent.cy + ent.r);
+                        foundGeometry = true;
+                    } else if (ent.type === 'POLYLINE_PATH') {
+                        ent.points.forEach(p => {
+                            minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                            minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+                        });
                         foundGeometry = true;
                     }
                 });
@@ -508,6 +537,16 @@
                         const startRad = (-ent.endAngle) * (Math.PI / 180);
                         const endRad = (-ent.startAngle) * (Math.PI / 180);
                         ctx.arc(toCanvasX(ent.cx), toCanvasY(ent.cy), ent.r * scale, startRad, endRad);
+                        ctx.stroke();
+                    } else if (ent.type === 'POLYLINE_PATH') {
+                        ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ent.points.forEach((p, idx) => {
+                            const px = toCanvasX(p.x);
+                            const py = toCanvasY(p.y);
+                            if (idx === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        });
                         ctx.stroke();
                     }
                 });
@@ -574,6 +613,7 @@
             }
         }
 
+        // Correct DXF Exporter producing valid Circles & Arcs for flanged/generated shapes
         function downloadGeneratedDxf() {
             const w = parseFloat(document.getElementById('dimW').value) || 6;
             const h = parseFloat(document.getElementById('dimH').value) || 4;
@@ -592,8 +632,17 @@
                 [[offset, offset], [w - offset, offset], [w - offset, h - offset], [offset, h - offset]].forEach(([cx, cy]) => {
                     dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n${cx}\n20\n${cy}\n40\n${r}\n`;
                 });
+            } else if (shape === 'flange_circle') {
+                const rad = w / 2;
+                dxfContent += `0\nCIRCLE\n8\n0\n10\n0.0\n20\n0.0\n40\n${rad}\n`;
+                dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n0.0\n20\n0.0\n40\n${rad * 0.35}\n`;
+                [[0, rad - offset], [rad - offset, 0], [0, -(rad - offset)], [-(rad - offset), 0]].forEach(([cx, cy]) => {
+                    dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n${cx}\n20\n${cy}\n40\n${hole/2}\n`;
+                });
             } else {
-                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n0.0\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
             dxfContent += `0\nENDSEC\n0\nEOF`;
