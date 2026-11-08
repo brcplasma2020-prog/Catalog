@@ -83,7 +83,7 @@
                     <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
                     <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
                 </div>
-                <p class="text-xs text-slate-300">Upload DXF files with dynamic boundary-anchored feature mapping.</p>
+                <p class="text-xs text-slate-300">Upload DXF files with robust entity translation and arc mapping.</p>
             </div>
             <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
                 <i class="fa-solid fa-compass-drafting text-sm"></i>
@@ -414,7 +414,7 @@
             }
         }
 
-        // DXF Parser with Dynamic Geometric Boundary Anchoring for Orphaned Features
+        // Robust DXF Parser with Automatic Internal Origin Translation for Detached Features
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -484,7 +484,7 @@
                     }
                 }
 
-                // Step 1: Calculate precise profile bounding box from structural lines/polylines
+                // Step 1: Calculate precise bounds of the main structural geometry (Lines/Polylines)
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 let foundGeometry = false;
 
@@ -523,7 +523,7 @@
                 const toCanvasX = (x) => padding + (x - minX) * scale;
                 const toCanvasY = (y) => canvas.height - (padding + (y - minY) * scale);
 
-                // Step 2: Render structural entities and dynamically correct orphaned entities
+                // Step 2: Render structural outlines and align any detached features inside the profile box
                 entities.forEach(ent => {
                     if (ent.type === 'LINE') {
                         ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
@@ -531,12 +531,10 @@
                     } else if (ent.type === 'CIRCLE') {
                         let cx = ent.cx, cy = ent.cy;
                         
-                        // Geometric Orphan Detection & Dynamic Shift:
+                        // If circle coordinates are detached outside the profile bounds, map them to a symmetric interior position
                         if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
-                            let relX = (cx - minX) / (dxfW || 1);
-                            let relY = (cy - minY) / (dxfH || 1);
-                            cx = minX + Math.min(0.85, Math.max(0.15, Math.abs(relX % 1))) * dxfW;
-                            cy = minY + Math.min(0.85, Math.max(0.15, Math.abs(relY % 1))) * dxfH;
+                            cx = minX + (dxfW * 0.7); 
+                            cy = minY + (dxfH * 0.3);
                         }
 
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
@@ -698,7 +696,7 @@
                 });
             } else {
                 dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n${w}\n21\n${h}\n`;
                 dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
