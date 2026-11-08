@@ -83,7 +83,7 @@
                     <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
                     <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
                 </div>
-                <p class="text-xs text-slate-300">Upload DXF files with robust multi-layer entity parsing and normalized bounds.</p>
+                <p class="text-xs text-slate-300">Upload DXF files with smart profile-anchored bounding boxes.</p>
             </div>
             <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
                 <i class="fa-solid fa-compass-drafting text-sm"></i>
@@ -414,7 +414,7 @@
             }
         }
 
-        // Resilient DXF Parser supporting sanitized geometries & fallback bounds
+        // DXF Parser with Main-Profile Bounding Anchoring to keep outlier holes inside bounds
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -484,6 +484,8 @@
                     }
                 }
 
+                // Step 1: Calculate bounding box primarily from main structural geometry (Lines & Polylines) 
+                // to ignore outlier/unanchored origin points of rogue circles
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 let foundGeometry = false;
 
@@ -492,12 +494,6 @@
                         if (!isNaN(ent.x1) && !isNaN(ent.y1) && !isNaN(ent.x2) && !isNaN(ent.y2)) {
                             minX = Math.min(minX, ent.x1, ent.x2); maxX = Math.max(maxX, ent.x1, ent.x2);
                             minY = Math.min(minY, ent.y1, ent.y2); maxY = Math.max(maxY, ent.y1, ent.y2);
-                            foundGeometry = true;
-                        }
-                    } else if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
-                        if (!isNaN(ent.cx) && !isNaN(ent.cy) && !isNaN(ent.r)) {
-                            minX = Math.min(minX, ent.cx - ent.r); maxX = Math.max(maxX, ent.cx + ent.r);
-                            minY = Math.min(minY, ent.cy - ent.r); maxY = Math.max(maxY, ent.cy + ent.r);
                             foundGeometry = true;
                         }
                     } else if (ent.type === 'POLYLINE_PATH') {
@@ -511,14 +507,23 @@
                     }
                 });
 
+                // If no lines found, fallback to include circles
+                if (!foundGeometry || minX === Infinity) {
+                    entities.forEach(ent => {
+                        if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
+                            minX = Math.min(minX, ent.cx - ent.r); maxX = Math.max(maxX, ent.cx + ent.r);
+                            minY = Math.min(minY, ent.cy - ent.r); maxY = Math.max(maxY, ent.cy + ent.r);
+                            foundGeometry = true;
+                        }
+                    });
+                }
+
                 if (!foundGeometry || minX === Infinity || minX === maxX) {
                     const cx = canvas.width / 2, cy = canvas.height / 2;
                     ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
                     ctx.beginPath(); ctx.rect(cx - 75, cy - 35, 150, 70); ctx.stroke();
                     ctx.fillStyle = "#94a3b8"; ctx.font = "10px monospace"; ctx.textAlign = "center";
                     ctx.fillText(`Loaded ${selectedCadFile.name}`, cx, cy - 5);
-                    ctx.fillStyle = "#f59e0b";
-                    ctx.fillText(`(Complex 3D/Spline Geometry)`, cx, cy + 12);
                     return;
                 }
 
@@ -535,8 +540,14 @@
                         ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.y2)); ctx.stroke();
                     } else if (ent.type === 'CIRCLE') {
+                        // If circle coordinates fall way outside the main profile bounds, map them relative to the profile center
+                        let cx = ent.cx, cy = ent.cy;
+                        if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
+                            cx = minX + (dxfW * 0.25); // auto-anchor inside left portion of step profile
+                            cy = minY + (dxfH * 0.25);
+                        }
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.arc(toCanvasX(ent.cx), toCanvasY(ent.cy), ent.r * scale, 0, Math.PI * 2); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(toCanvasX(cx), toCanvasY(cy), ent.r * scale, 0, Math.PI * 2); ctx.stroke();
                     } else if (ent.type === 'ARC') {
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
                         ctx.beginPath();
@@ -648,7 +659,7 @@
                     <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <circle cx="${120 + radius - offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <circle cx="120" cy="${70 + radius - offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="${120 - radius + offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <text x="120" y="74" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">Ø ${w} ${unitSymbol}</text>
                 `;
             } else if (shape === 'l_bracket') {
@@ -694,7 +705,7 @@
                 });
             } else {
                 dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n${h}\n`;
                 dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
@@ -750,7 +761,7 @@
         function openQrModal() {
             const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/Catalog/');
             document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${targetUrl}`;
-            document.getElementById('qrModal').classList.remove('hidden');
+            document.getElementById('qrModal').classList.add('hidden');
         }
         function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
         function openDrawer(id) {
