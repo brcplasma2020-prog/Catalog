@@ -1,794 +1,809 @@
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRC WELDING | WhatsApp Catalog & CAD Builder</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Custom CAD Part Quote Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cadDark: '#0f172a',
+                        cadPanel: '#1e293b',
+                        cadAccent: '#06b6d4',
+                        cadGreen: '#10b981',
+                        cadWarning: '#f59e0b',
+                        cadDanger: '#ef4444'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        
-        @media print {
-            body * { visibility: hidden; }
-            #printableArea, #printableArea * { visibility: visible; }
-            #printableArea {
-                position: absolute; left: 0; top: 0; width: 90mm !important; height: 30mm !important; margin: 0; padding: 0;
-            }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+        }
+        .grid-pattern {
+            background-size: 24px 24px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-black">
 
-    <!-- Header -->
-    <header class="bg-emerald-950 border-b border-emerald-800 sticky top-0 z-30 shadow-lg">
-        <div class="max-w-4xl mx-auto px-3 py-2.5 flex items-center justify-between">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <div class="w-10 h-10 rounded-full bg-emerald-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-base border border-emerald-500 shadow">
-                    BRC
-                </div>
-                <div class="min-w-0">
-                    <div class="flex items-center space-x-1">
-                        <h1 class="font-bold text-sm text-white tracking-wide truncate">BRC WELDING</h1>
-                        <i class="fa-solid fa-circle-check text-sky-400 text-[10px]"></i>
-                    </div>
-                    <p class="text-[10px] text-emerald-300 truncate">Blue Ridge Colony • Laser & Press Brake</p>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-1.5 flex-shrink-0">
-                <button onclick="openCadModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-2.5 py-1.5 rounded-lg font-semibold transition flex items-center space-x-1 shadow">
-                    <i class="fa-solid fa-compass-drafting text-xs"></i>
-                    <span class="hidden xs:inline">CAD / DXF</span>
-                    <span class="xs:hidden">CAD</span>
-                </button>
-                <button onclick="handleAdminClick()" class="bg-emerald-900 hover:bg-emerald-800 text-emerald-200 border border-emerald-700 text-[11px] px-2 py-1.5 rounded-lg font-medium transition flex items-center space-x-1">
-                    <i class="fa-solid fa-lock text-[10px]" id="adminIcon"></i>
-                    <span class="hidden sm:inline" id="adminBtnText">Admin</span>
-                </button>
-                <a href="https://wa.me/14035939470" target="_blank" class="bg-green-600 hover:bg-green-500 text-white text-[11px] px-2.5 py-1.5 rounded-lg font-medium transition flex items-center space-x-1 shadow">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    <span>Chat</span>
-                </a>
-            </div>
+    <!-- 1. HOME / GLOBAL DEVELOPMENT NOTICE BANNER -->
+    <header id="global-dev-banner" class="bg-amber-500/10 border-b border-amber-500/30 text-amber-200 text-xs sm:text-sm py-2 px-4 flex items-center justify-between shadow-sm backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center gap-2.5 text-center sm:text-left">
+            <span class="inline-flex items-center justify-center bg-amber-500/20 text-amber-400 p-1.5 rounded-full shrink-0">
+                <i class="fa-solid font-bold fa-wrench text-xs"></i>
+            </span>
+            <p>
+                <strong class="font-semibold text-amber-300">⚠️ Website Under Development:</strong> 
+                Our platform is currently under active development. Features and processing capabilities are continuously being updated.
+            </p>
         </div>
+        <button onclick="document.getElementById('global-dev-banner').style.display='none'" class="text-amber-400/70 hover:text-amber-200 transition p-1">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
     </header>
 
-    <!-- Capabilities Bar -->
-    <section class="bg-slate-900 border-b border-slate-800 py-2 px-3 text-[11px]">
-        <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-slate-300">
-            <div class="flex items-center space-x-3 flex-wrap">
-                <span><i class="fa-solid fa-bolt text-emerald-400 mr-1"></i>6kW Fiber Laser</span>
-                <span><i class="fa-solid fa-arrows-split-up-and-left text-emerald-400 mr-1"></i>190T Brake</span>
-                <span><i class="fa-solid fa-fire text-emerald-400 mr-1"></i>Laser Welder</span>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="openCadModal()" class="text-amber-400 font-semibold hover:underline flex items-center">
-                    <i class="fa-solid fa-upload mr-1"></i>Upload / Build DXF
-                </button>
-                <a href="tel:4035939470" class="text-emerald-400 font-mono"><i class="fa-solid fa-phone mr-1"></i>403 593 9470</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="flex-grow max-w-4xl w-full mx-auto px-3 py-4 space-y-4">
-        
-        <!-- Custom CAD Banner -->
-        <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-800/80 rounded-xl p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="space-y-1">
-                <div class="flex items-center space-x-2">
-                    <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
-                    <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
-                </div>
-                <p class="text-xs text-slate-300">Upload DXF files with precise interior feature & fillet realignment.</p>
-            </div>
-            <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
-                <i class="fa-solid fa-compass-drafting text-sm"></i>
-                <span>Open CAD Builder</span>
-            </button>
-        </div>
-
-        <!-- Catalog Items -->
-        <div class="flex items-center justify-between pt-2">
-            <h2 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Standard Parts & Services</h2>
-            <div class="text-[11px] text-slate-500"><span id="productCount">0</span> items</div>
-        </div>
-
-        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-    </main>
-
-    <!-- Custom CAD / Upload Modal -->
-    <div id="cadModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
-            <div class="p-3.5 border-b border-slate-800 flex items-center justify-between sticky top-0 bg-slate-900 z-10">
-                <h3 class="font-bold text-sm text-white flex items-center">
-                    <i class="fa-solid fa-compass-drafting text-amber-400 mr-2"></i> Custom CAD Part Quote
-                </h3>
-                <button onclick="closeCadModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <div class="p-4 space-y-4 text-xs">
-                <!-- Mode Switch Tabs & Unit Selection -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
-                    <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 w-full sm:w-auto flex-1">
-                        <button id="tabUpload" onclick="switchCadTab('upload')" class="flex-1 py-1.5 rounded-md font-semibold text-center transition bg-emerald-600 text-white">Upload File (.DXF/.STEP)</button>
-                        <button id="tabDraw" onclick="switchCadTab('draw')" class="flex-1 py-1.5 rounded-md font-semibold text-center transition text-slate-400 hover:text-white">Build Shape</button>
+    <!-- Navigation Header -->
+    <nav class="bg-slate-900 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-cyan-500 text-slate-950 p-2 rounded-lg font-black text-lg shadow-lg shadow-cyan-500/20 flex items-center justify-center w-9 h-9">
+                        <i class="fa-solid fa-shapes"></i>
                     </div>
-
-                    <!-- Unit Selector -->
-                    <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 self-end">
-                        <span class="text-[10px] text-slate-400 mr-1.5 font-mono pl-1">Units:</span>
-                        <button id="unitInches" onclick="setCadUnit('Inches')" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950">Inches (in)</button>
-                        <button id="unitMm" onclick="setCadUnit('mm')" class="px-2 py-0.5 rounded text-[10px] font-bold text-slate-400 hover:text-white">Metric (mm)</button>
-                    </div>
-                </div>
-
-                <!-- Tab 1: Upload Existing CAD -->
-                <div id="cadUploadSection" class="space-y-3">
-                    <div class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-4 text-center bg-slate-950 transition">
-                        <i class="fa-solid fa-file-arrow-up text-2xl text-emerald-400 mb-2"></i>
-                        <p class="text-slate-300 font-medium mb-1">Select DXF or STEP file</p>
-                        <p class="text-[10px] text-slate-500 mb-3">Accepted: .dxf, .step, .stp, .dwg, .pdf</p>
-                        <input type="file" id="cadFileInput" accept=".dxf,.step,.stp,.dwg,.pdf" onchange="handleCadFileSelected(event)" class="hidden">
-                        <button onclick="document.getElementById('cadFileInput').click()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg font-medium text-xs border border-slate-600">Browse File</button>
-                    </div>
-
-                    <div id="fileSelectedInfo" class="hidden space-y-2">
-                        <div class="bg-emerald-950/50 border border-emerald-800 rounded-lg p-2.5 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-file-code text-emerald-400"></i>
-                                <span id="cadFileName" class="font-mono text-emerald-200 truncate max-w-[180px]">file.dxf</span>
-                            </div>
-                            <span id="cadFileSize" class="text-[10px] text-slate-400 font-mono">0 KB</span>
-                        </div>
-
-                        <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-center">
-                            <div class="text-[10px] text-slate-400 mb-1 font-mono flex items-center justify-between px-1">
-                                <span>2D DXF Vector Render</span>
-                                <span id="previewUnitBadge" class="text-amber-400 font-bold">Inches</span>
-                            </div>
-                            <canvas id="uploadPreviewCanvas" class="w-full h-44 bg-slate-900 rounded border border-slate-800"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Build Shape (Parametric Generator) -->
-                <div id="cadDrawSection" class="space-y-3 hidden">
                     <div>
-                        <label class="block text-slate-400 mb-1">Shape Template</label>
-                        <select id="shapeType" onchange="updateShapePreview()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
-                            <option value="rect_holes">Rectangular Plate with 4 Corner Holes</option>
-                            <option value="flange_circle">Circular Flange (Center Bore + Bolt Circle)</option>
-                            <option value="l_bracket">L-Bracket (Press Brake Formed)</option>
-                            <option value="gusset">Triangle Gusset Plate</option>
-                        </select>
+                        <span class="font-bold text-lg tracking-tight text-white block leading-tight">ApexCut <span class="text-cyan-400 font-mono text-xs px-1.5 py-0.5 bg-cyan-950/80 border border-cyan-800 rounded">PRO</span></span>
+                        <span class="text-xs text-slate-400 font-mono">Custom CAD & Plasma Quote Engine</span>
                     </div>
+                </div>
 
-                    <div class="grid grid-cols-2 gap-2 bg-slate-950 p-3 rounded-lg border border-slate-800" id="shapeInputs">
-                        <div>
-                            <label class="block text-slate-400 text-[10px] mb-0.5">Width (<span class="unitLabel">in</span>)</label>
-                            <input type="number" id="dimW" value="6" step="0.1" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-[10px] mb-0.5">Height (<span class="unitLabel">in</span>)</label>
-                            <input type="number" id="dimH" value="4" step="0.1" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-[10px] mb-0.5">Hole Size (<span class="unitLabel">in</span>)</label>
-                            <input type="number" id="dimHole" value="0.375" step="0.0625" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-[10px] mb-0.5">Edge Offset (<span class="unitLabel">in</span>)</label>
-                            <input type="number" id="dimOffset" value="0.75" step="0.1" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 flex flex-col items-center">
-                        <div class="text-[10px] text-slate-500 mb-1">Live Scaled Parametric Preview</div>
-                        <svg id="svgPreview" class="w-full h-40 bg-slate-900 rounded border border-slate-800" viewBox="0 0 240 140" preserveAspectRatio="xMidYMid meet"></svg>
-                    </div>
-
-                    <button onclick="downloadGeneratedDxf()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 py-1.5 rounded-lg border border-slate-700 font-mono text-[11px] flex items-center justify-center">
-                        <i class="fa-solid fa-download mr-1.5"></i> Download DXF CAD File
+                <!-- Navigation Tabs -->
+                <div class="flex space-x-1 sm:space-x-2">
+                    <button id="nav-home" onclick="switchTab('home')" class="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition flex items-center gap-2 bg-slate-800 text-cyan-400 border border-slate-700">
+                        <i class="fa-solid fa-house"></i> Home
+                    </button>
+                    <button id="nav-quote" onclick="switchTab('quote')" class="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Quote Tool
+                    </button>
+                    <button id="nav-help" onclick="switchTab('help')" class="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
+                        <i class="fa-solid fa-book-open"></i> CAD Guide
                     </button>
                 </div>
+            </div>
+        </div>
+    </nav>
 
-                <!-- Material & Order Specs -->
-                <div class="border-t border-slate-800 pt-3 space-y-2.5">
-                    <div>
-                        <label class="block text-slate-400 mb-1">Material Type</label>
-                        <select id="cadMaterial" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
-                            <option value="Mild Steel (A36/44W)">Mild Steel (A36/44W)</option>
-                            <option value="Stainless Steel 304">Stainless Steel 304</option>
-                            <option value="Aluminum 6061">Aluminum 6061</option>
-                            <option value="Hardox / AR400">Hardox / AR400 Wear Plate</option>
-                        </select>
-                    </div>
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-slate-400 mb-1">Thickness</label>
-                            <select id="cadThickness" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
-                                <option value="11 Gauge (1/8&quot;)">11 Gauge (1/8")</option>
-                                <option value="3/16&quot;">3/16"</option>
-                                <option value="1/4&quot;">1/4"</option>
-                                <option value="3/8&quot;">3/8"</option>
-                                <option value="1/2&quot;">1/2"</option>
-                                <option value="5/8&quot;+ Heavy">5/8"+ Heavy Plate</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 mb-1">Quantity</label>
-                            <input type="number" id="cadQty" value="1" min="1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-slate-400 mb-1">Special Instructions / Bending</label>
-                        <textarea id="cadNotes" rows="2" placeholder="e.g. 90-degree bend on 190T press brake..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white"></textarea>
+        <!-- TAB 1: HOME PAGE -->
+        <section id="tab-home" class="space-y-8">
+            <div class="relative rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 p-8 sm:p-12 overflow-hidden shadow-2xl">
+                <div class="absolute inset-0 grid-pattern opacity-30"></div>
+                <div class="relative z-10 max-w-3xl">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-4">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        Next-Gen Instant Quoting Engine
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+                        Precision CNC & Plasma Cutting Parts <span class="text-cyan-400">In Seconds</span>
+                    </h1>
+                    <p class="text-slate-400 text-base sm:text-lg mb-8 leading-relaxed">
+                        Upload your 2D CAD vectors (.DXF) or 3D models (.STEP) to get real-time price quotes, geometry validation, material nesting analysis, and immediate production turnarounds.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="switchTab('quote')" class="px-6 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition transform active:scale-95 flex items-center gap-2">
+                            <i class="fa-solid fa-upload"></i> Launch Instant Quote Engine
+                        </button>
+                        <button onclick="switchTab('help')" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info"></i> CAD Preparation Guidelines
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <button onclick="sendCadWhatsAppQuote()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg text-xs">
-                    <i class="fa-brands fa-whatsapp text-sm"></i>
-                    <span>Send CAD Quote Request on WhatsApp</span>
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-xl hover:border-slate-700 transition">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center text-xl mb-4 border border-emerald-500/20">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">Instant Geometry Parsing</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Automated calculation of cut lengths, internal pierces, bounding dimensions, and estimated torch runtime.
+                    </p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-xl hover:border-slate-700 transition">
+                    <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-lg flex items-center justify-center text-xl mb-4 border border-cyan-500/20">
+                        <i class="fa-solid fa-ruler-combined"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">Material Versatility</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Supports Mild Steel, Stainless, Aluminum, Brass, and Copper across standard thickness specs with metric or imperial units.
+                    </p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-xl hover:border-slate-700 transition">
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center text-xl mb-4 border border-amber-500/20">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2">DFM Validation</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Automated design for manufacturability checks ensuring zero open loops, valid line segments, and cuttable contours.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: QUOTE TOOL (Primary CAD Portal Interface) -->
+        <section id="tab-quote" class="hidden space-y-6">
+
+            <!-- Title & Mode Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        Custom CAD Part Quote
+                        <span class="text-xs bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded font-mono font-normal">Auto-Parser Active</span>
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm mt-1">Upload vector drawing files to compute geometry, material utilization, and instant fabrication costs.</p>
+                </div>
+                
+                <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 self-start sm:self-auto">
+                    <button id="unit-in" onclick="setUnits('in')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950 shadow-md">Inches (in)</button>
+                    <button id="unit-mm" onclick="setUnits('mm')" class="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition">Metric (mm)</button>
+                </div>
+            </div>
+
+            <!-- 2. UPLOAD PAGE SPECIFIC SPLINE WARNING BANNER -->
+            <div id="spline-notice-banner" class="bg-amber-950/40 border border-amber-500/40 rounded-xl p-4 flex items-start gap-3 text-amber-200 shadow-lg relative">
+                <div class="bg-amber-500/20 text-amber-400 p-2 rounded-lg shrink-0 mt-0.5">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                <div class="flex-grow pr-6">
+                    <h4 class="font-bold text-amber-300 text-sm tracking-wide">⚠️ File Format Notice: SPLINE entities cannot be parsed</h4>
+                    <p class="text-xs text-amber-200/90 mt-1 leading-relaxed">
+                        Complex <strong>SPLINE</strong> entities cannot be parsed. Please convert all splines to standard <strong>2D polylines, lines, and arcs</strong> in your CAD software before uploading .DXF or .STEP files.
+                    </p>
+                    <button onclick="switchTab('help')" class="text-xs text-cyan-400 hover:underline font-semibold mt-2 inline-flex items-center gap-1">
+                        How to convert SPLINEs to Polylines in AutoCAD/Inkscape <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+                <button onclick="document.getElementById('spline-notice-banner').style.display='none'" class="text-amber-400/60 hover:text-amber-200 text-sm absolute top-3 right-3 p-1">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-        </div>
-    </div>
 
-    <!-- Admin & QR Modals -->
-    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-sm w-full shadow-2xl">
-            <h3 class="text-sm font-bold text-white mb-2 flex items-center">
-                <i class="fa-solid fa-shield-halved text-emerald-400 mr-2"></i> Admin Authentication
-            </h3>
-            <p class="text-xs text-slate-400 mb-4">Enter password (default: <code class="text-emerald-300 font-mono">admin123</code>).</p>
-            <form onsubmit="verifyAdminPassword(event)" class="space-y-3">
-                <input type="password" id="adminPasswordInput" placeholder="Password" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white">
-                <div class="flex space-x-2">
-                    <button type="button" onclick="closeAdminModal()" class="flex-1 bg-slate-800 text-slate-300 text-xs py-2 rounded-lg">Cancel</button>
-                    <button type="submit" class="flex-1 bg-emerald-600 text-white text-xs py-2 rounded-lg font-medium">Login</button>
-                </div>
-            </form>
-        </div>
-    </div>
+            <!-- MAIN WORKSPACE GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <div id="adminPanel" class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-md border-t border-emerald-500/40 p-3 z-40 hidden shadow-2xl">
-        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <div class="flex items-center space-x-2 text-emerald-400 font-medium">
-                <i class="fa-solid fa-circle-dot animate-pulse"></i>
-                <span>Admin Active</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="openAddProductModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Add Product</button>
-                <button onclick="openQrModal()" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg">Printable 90x30mm Label</button>
-                <button onclick="logoutAdmin()" class="bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg">Exit</button>
-            </div>
-        </div>
-    </div>
+                <!-- Left Column: Upload & Canvas Render (7 cols) -->
+                <div class="lg:col-span-7 space-y-6">
 
-    <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-4 shadow-2xl text-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm text-white">Print Label Generator (90mm × 30mm)</h3>
-                <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center">
-                <div id="printableArea" class="bg-white text-slate-950 p-2 border-2 border-slate-950 rounded flex items-center justify-between shadow-md" style="width: 340px; height: 114px; box-sizing: border-box;">
-                    <div class="flex flex-col justify-between h-full space-y-0.5">
-                        <div>
-                            <div class="font-black text-sm tracking-tighter leading-none">BRC WELDING</div>
-                            <div class="text-[9px] font-bold text-slate-700 leading-tight">BLUE RIDGE COLONY</div>
-                        </div>
-                        <div class="text-[8px] font-mono leading-tight text-slate-800 border-t border-slate-300 pt-0.5">
-                            <div>• 6kW Fiber Laser</div>
-                            <div>• 190T Press Brake</div>
-                            <div>• Laser Welding</div>
-                        </div>
-                        <div class="text-[8px] font-bold font-mono text-emerald-900 truncate max-w-[190px]">
-                            brcplasma2020-prog.github.io/Catalog
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center justify-center h-full pl-1 border-l border-slate-300">
-                        <img id="qrCodeImg" class="w-16 h-16 border border-slate-200" alt="Catalog QR">
-                        <span class="text-[7px] font-mono font-bold mt-0.5 text-center">SCAN CATALOG</span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex space-x-2">
-                <button onclick="window.print()" class="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-lg">Print Label Now</button>
-                <button onclick="closeQrModal()" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-lg">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Drawer -->
-    <div id="itemDrawer" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-t-2xl sm:rounded-2xl max-w-md w-full p-4 shadow-2xl space-y-3 text-xs">
-            <div class="flex justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-white" id="drawerTitle">Product Order</h3>
-                <button onclick="closeDrawer()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="drawerImageContainer" class="w-full h-36 bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800"></div>
-            <div>
-                <span id="drawerCategory" class="text-emerald-400 font-semibold uppercase text-[9px]"></span>
-                <h4 id="drawerName" class="text-sm font-bold text-white"></h4>
-                <p id="drawerPrice" class="text-emerald-300 font-mono font-semibold mt-1"></p>
-                <p id="drawerDesc" class="text-slate-400 text-[11px] mt-1"></p>
-            </div>
-            <button onclick="sendWhatsAppInquiry()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">Send Order to WhatsApp</button>
-        </div>
-    </div>
-
-    <!-- Script Engine -->
-    <script>
-        const defaultProducts = [
-            { id: "brc_1", name: "Custom Laser Cut Flange Plates", category: "Machinery & Pipe", price: "35.00", desc: "Precision cut on 6kW fiber laser. Dross-free edges ready for welding.", image: "" },
-            { id: "brc_2", name: "Heavy-Duty Structural Gussets", category: "Structural", price: "22.50", desc: "Precision formed on 190T press brake. Custom mounting holes.", image: "" },
-            { id: "brc_3", name: "Decorative Architectural Screens", category: "Custom Panels", price: "180.00", desc: "Custom laser cut privacy screens, gates, and metal art panels.", image: "" },
-            { id: "brc_4", name: "Heavy Steel Fire Pit Kits", category: "Retail Parts", price: "250.00", desc: "Interlocking heavy steel fire pit kit for quick assembly.", image: "" }
-        ];
-
-        let products = JSON.parse(localStorage.getItem('brc_products')) || defaultProducts;
-        let isAdmin = false;
-        let adminPassword = localStorage.getItem('brc_admin_pass') || 'admin123';
-        let currentSelectedItem = null;
-        let selectedCadFile = null;
-        let currentUnit = 'Inches';
-
-        function saveProductsToStorage() { localStorage.setItem('brc_products', JSON.stringify(products)); }
-
-        function renderCatalog() {
-            const grid = document.getElementById('productGrid');
-            document.getElementById('productCount').innerText = products.length;
-            grid.innerHTML = '';
-            products.forEach(p => {
-                let imgContent = p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : 
-                    `<div class="flex flex-col items-center justify-center text-emerald-500"><i class="fa-solid fa-fire-flame-curved text-2xl mb-1"></i><span class="text-[9px] text-slate-400 font-mono">BRC WELDING</span></div>`;
-                let card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col justify-between relative shadow-md";
-                card.innerHTML = `
-                    <div>
-                        <div class="w-full h-36 bg-slate-950 border-b border-slate-800 relative">${imgContent}</div>
-                        <div class="p-3">
-                            <span class="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest">${p.category}</span>
-                            <h3 class="font-bold text-xs text-white mt-0.5 truncate">${p.name}</h3>
-                            <p class="text-slate-400 text-[11px] mt-1 line-clamp-2 leading-tight">${p.desc}</p>
-                        </div>
-                    </div>
-                    <div class="p-3 pt-0 flex items-center justify-between border-t border-slate-800/60 mt-2">
-                        <span class="font-mono font-bold text-emerald-300 text-xs">$${p.price} CAD</span>
-                        <button onclick="openDrawer('${p.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow">Quote</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function setCadUnit(unit) {
-            currentUnit = unit;
-            document.getElementById('previewUnitBadge').innerText = unit;
-            document.querySelectorAll('.unitLabel').forEach(el => el.innerText = unit === 'Inches' ? 'in' : 'mm');
-            
-            if (unit === 'Inches') {
-                document.getElementById('unitInches').className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
-                document.getElementById('unitMm').className = "px-2 py-0.5 rounded text-[10px] font-bold text-slate-400 hover:text-white";
-            } else {
-                document.getElementById('unitMm').className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950";
-                document.getElementById('unitInches').className = "px-2 py-0.5 rounded text-[10px] font-bold text-slate-400 hover:text-white";
-            }
-            updateShapePreview();
-            if (selectedCadFile) renderUploadedDxfPreview();
-        }
-
-        function openCadModal() { document.getElementById('cadModal').classList.remove('hidden'); updateShapePreview(); }
-        function closeCadModal() { document.getElementById('cadModal').classList.add('hidden'); }
-
-        function switchCadTab(tab) {
-            if (tab === 'upload') {
-                document.getElementById('cadUploadSection').classList.remove('hidden');
-                document.getElementById('cadDrawSection').classList.add('hidden');
-                document.getElementById('tabUpload').className = "flex-1 py-1.5 rounded-md font-semibold text-center transition bg-emerald-600 text-white";
-                document.getElementById('tabDraw').className = "flex-1 py-1.5 rounded-md font-semibold text-center transition text-slate-400 hover:text-white";
-            } else {
-                document.getElementById('cadUploadSection').classList.add('hidden');
-                document.getElementById('cadDrawSection').classList.remove('hidden');
-                document.getElementById('tabDraw').className = "flex-1 py-1.5 rounded-md font-semibold text-center transition bg-emerald-600 text-white";
-                document.getElementById('tabUpload').className = "flex-1 py-1.5 rounded-md font-semibold text-center transition text-slate-400 hover:text-white";
-                updateShapePreview();
-            }
-        }
-
-        function handleCadFileSelected(e) {
-            const file = e.target.files[0];
-            if (file) {
-                selectedCadFile = file;
-                document.getElementById('cadFileName').innerText = file.name;
-                document.getElementById('cadFileSize').innerText = (file.size / 1024).toFixed(1) + ' KB';
-                document.getElementById('fileSelectedInfo').classList.remove('hidden');
-                renderUploadedDxfPreview();
-            }
-        }
-
-        // Precise DXF Parser with Exact Interior Hole & Fillet Arc Realignment
-        function renderUploadedDxfPreview() {
-            const canvas = document.getElementById('uploadPreviewCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-
-            ctx.fillStyle = "#0f172a";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.strokeStyle = "#1e293b";
-            ctx.lineWidth = 1;
-            for (let x = 0; x < canvas.width; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-            for (let y = 0; y < canvas.height; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-
-            if (!selectedCadFile) return;
-
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const text = evt.target.result;
-                const lines = text.split(/\r?\n/);
-
-                let entities = [];
-                let i = 0;
-                let currentPoly = null;
-
-                while (i < lines.length) {
-                    let line = lines[i].trim();
-                    if (line === '0') {
-                        let entityType = lines[i+1] ? lines[i+1].trim() : '';
-                        i += 2;
-                        let ent = { type: entityType, x1: 0, y1: 0, x2: 0, y2: 0, cx: 0, cy: 0, r: 0, startAngle: 0, endAngle: 360, vx: 0, vy: 0, bulge: 0 };
+                    <!-- Drag & Drop Upload Container -->
+                    <div class="bg-slate-900/90 border-2 border-dashed border-slate-700 hover:border-cyan-500/80 rounded-2xl p-6 text-center transition cursor-pointer relative group" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                        <input type="file" id="file-input" class="hidden" accept=".dxf,.step,.stp,.dwg" onchange="handleFileSelect(event)">
                         
-                        while (i < lines.length - 1) {
-                            let code = parseInt(lines[i].trim());
-                            let val = lines[i+1].trim();
-                            if (code === 0) break;
+                        <div class="flex flex-col items-center justify-center py-4">
+                            <div class="w-14 h-14 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center text-2xl mb-3 border border-cyan-500/20 group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-1">Select DXF or STEP file</h3>
+                            <p class="text-slate-400 text-xs mb-3">Drag and drop your CAD drawing here, or <span class="text-cyan-400 underline">browse your device</span></p>
+                            <span class="text-[11px] font-mono text-slate-500 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">Accepted: .dxf, .step, .stp (Max: 25MB)</span>
+                        </div>
+                    </div>
+
+                    <!-- Preset Test Demos for Instant Validation Testing -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2 font-mono">Test File Samples (Demo Parser):</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="loadSampleFile('valid')" class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-left transition group">
+                                <div class="w-8 h-8 rounded bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs border border-emerald-500/30 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-file-code"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-xs font-medium text-slate-200 block truncate">fin_tube_holder_clean.dxf</span>
+                                    <span class="text-[10px] text-emerald-400 font-mono">Valid Polylines (Clean)</span>
+                                </div>
+                            </button>
+                            <button onclick="loadSampleFile('spline')" class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-left transition group">
+                                <div class="w-8 h-8 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs border border-amber-500/30 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <span class="text-xs font-medium text-slate-200 block truncate">fin_tube_holder_raw.dxf</span>
+                                    <span class="text-[10px] text-amber-400 font-mono">Contains SPLINE entities</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CAD Canvas Render Container -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+                        <!-- Canvas Control Bar -->
+                        <div class="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">2D Vector Previewer</span>
+                                <span id="file-tag" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono hidden">No file loaded</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-xs font-mono text-slate-400">
+                                <span id="unit-indicator" class="text-cyan-400">GRID: 0.50 in</span>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Viewport -->
+                        <div class="relative w-full h-[360px] sm:h-[420px] bg-slate-950 grid-pattern flex items-center justify-center p-4 overflow-hidden" id="canvas-container">
+                            <canvas id="cad-canvas" class="max-w-full max-h-full rounded"></canvas>
                             
-                            if (ent.type === 'LINE') {
-                                if (code === 10) ent.x1 = parseFloat(val);
-                                if (code === 20) ent.y1 = parseFloat(val);
-                                if (code === 11) ent.x2 = parseFloat(val);
-                                if (code === 21) ent.y2 = parseFloat(val);
-                            } else if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
-                                if (code === 10) ent.cx = parseFloat(val);
-                                if (code === 20) ent.cy = parseFloat(val);
-                                if (code === 40) ent.r = parseFloat(val);
-                                if (code === 50) ent.startAngle = parseFloat(val);
-                                if (code === 51) ent.endAngle = parseFloat(val);
-                            } else if (ent.type === 'VERTEX') {
-                                if (code === 10) ent.vx = parseFloat(val);
-                                if (code === 20) ent.vy = parseFloat(val);
-                                if (code === 42) ent.bulge = parseFloat(val);
-                            }
-                            i += 2;
-                        }
+                            <!-- Placeholder Overlay when empty -->
+                            <div id="canvas-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90 text-center p-6">
+                                <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600 text-2xl mb-3">
+                                    <i class="fa-solid fa-drafting-compass"></i>
+                                </div>
+                                <h4 class="text-slate-300 font-semibold text-sm">No Active CAD Geometry</h4>
+                                <p class="text-slate-500 text-xs max-w-xs mt-1">Upload a .dxf or click a sample file above to parse geometry details.</p>
+                            </div>
 
-                        if (ent.type === 'POLYLINE') {
-                            currentPoly = { type: 'POLYLINE_PATH', points: [] };
-                            entities.push(currentPoly);
-                        } else if (ent.type === 'VERTEX' && currentPoly) {
-                            currentPoly.points.push({ x: ent.vx, y: ent.vy, bulge: ent.bulge });
-                        } else if (ent.type !== 'SEQEND') {
-                            entities.push(ent);
-                        }
-                    } else {
-                        i += 2;
-                    }
+                            <!-- Processing Spinner -->
+                            <div id="canvas-loading" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-cyan-400 mb-3"></i>
+                                <span class="text-xs font-mono text-slate-300">Parsing DXF Entities & Coordinates...</span>
+                            </div>
+
+                            <!-- Error Message Overlay for Spline Failure -->
+                            <div id="spline-error-overlay" class="hidden absolute inset-0 bg-slate-950/95 p-6 flex flex-col items-center justify-center text-center z-20">
+                                <div class="w-14 h-14 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center text-2xl mb-3 border border-red-500/30">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <h4 class="text-red-400 font-bold text-base">Parsing Failed: Unhandled SPLINE Entities</h4>
+                                <p class="text-slate-400 text-xs max-w-md mt-2 leading-relaxed">
+                                    The uploaded file <span id="err-file-name" class="font-mono text-slate-200">file.dxf</span> contains unhandled spline curves. The viewer cannot calculate closed contours or toolpaths from splines.
+                                </p>
+                                <div class="mt-4 p-3 bg-red-950/30 border border-red-900/50 rounded-lg text-left text-xs font-mono text-red-200/90 max-w-md space-y-1">
+                                    <div>➜ Found: 14 SPLINE entities</div>
+                                    <div>➜ Status: Cannot close boundary loop</div>
+                                    <div>➜ Solution: Convert splines to polylines (PEDIT)</div>
+                                </div>
+                                <button onclick="switchTab('help')" class="mt-5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700 transition">
+                                    View Conversion Guide
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Vector Details Bar -->
+                        <div class="bg-slate-950 px-4 py-3 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                            <div>
+                                <span class="text-slate-500 block text-[10px]">BOUNDING BOX</span>
+                                <span id="stat-bbox" class="text-slate-300 font-medium">0.00 x 0.00 in</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[10px]">CUT PATH LENGTH</span>
+                                <span id="stat-length" class="text-slate-300 font-medium">0.00 in</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[10px]">PIERCE COUNT</span>
+                                <span id="stat-pierces" class="text-slate-300 font-medium">0</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[10px]">ENTITY CHECK</span>
+                                <span id="stat-entities" class="text-slate-400 font-medium">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Specs & Pricing Panel (5 cols) -->
+                <div class="lg:col-span-5 space-y-6">
+
+                    <!-- Material & Process Settings Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                        <h3 class="font-bold text-white text-base flex items-center gap-2 border-b border-slate-800 pb-3">
+                            <i class="fa-solid fa-sliders text-cyan-400"></i> Part Specifications
+                        </h3>
+
+                        <!-- Material Selection -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Material Type</label>
+                            <select id="mat-select" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                <option value="a36">A36 Mild Steel</option>
+                                <option value="ss304">304 Stainless Steel</option>
+                                <option value="alu6061">6061-T6 Aluminum</option>
+                                <option value="brass">C360 Brass</option>
+                            </select>
+                        </div>
+
+                        <!-- Material Thickness -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Material Thickness</label>
+                            <select id="thick-select" onchange="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                <option value="0.0625">16 Gauge (1/16" / 1.5mm)</option>
+                                <option value="0.125" selected>11 Gauge (1/8" / 3.0mm)</option>
+                                <option value="0.25">1/4" (0.250" / 6.35mm)</option>
+                                <option value="0.375">3/8" (0.375" / 9.5mm)</option>
+                                <option value="0.5">1/2" (0.500" / 12.7mm)</option>
+                            </select>
+                        </div>
+
+                        <!-- Quantity Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider font-mono">Part Quantity</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" id="part-qty" min="1" max="1000" value="5" onchange="calculateQuote()" onkeyup="calculateQuote()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                            </div>
+                        </div>
+
+                        <!-- Additional Processes -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider font-mono">Secondary Finishing</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-xs text-slate-300 gap-2 cursor-pointer">
+                                    <input type="checkbox" id="opt-deburr" onchange="calculateQuote()" class="rounded bg-slate-950 border-slate-800 text-cyan-500 focus:ring-0">
+                                    Vibratory Deburring & Edge Softening
+                                </label>
+                                <label class="flex items-center text-xs text-slate-300 gap-2 cursor-pointer">
+                                    <input type="checkbox" id="opt-coat" onchange="calculateQuote()" class="rounded bg-slate-950 border-slate-800 text-cyan-500 focus:ring-0">
+                                    Black Oxide / Powder Coating
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instant Price Quote Summary Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl relative overflow-hidden">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="font-bold text-white text-base">Cost Summary</h3>
+                            <span class="text-xs text-slate-500 font-mono">ESTIMATED</span>
+                        </div>
+
+                        <div class="space-y-2 text-xs font-mono">
+                            <div class="flex justify-between text-slate-400">
+                                <span>Material Stock Cost:</span>
+                                <span id="cost-material" class="text-slate-200">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>CNC Laser/Plasma Cutting:</span>
+                                <span id="cost-cutting" class="text-slate-200">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Piercing & Setup Fee:</span>
+                                <span id="cost-setup" class="text-slate-200">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400">
+                                <span>Secondary Operations:</span>
+                                <span id="cost-finishing" class="text-slate-200">$0.00</span>
+                            </div>
+                            <div class="pt-2 border-t border-slate-800 flex justify-between items-baseline">
+                                <span class="text-sm font-bold text-slate-200 font-sans">Total Estimated Price:</span>
+                                <span id="cost-total" class="text-2xl font-black text-cyan-400">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-slate-500">
+                                <span>Unit Price:</span>
+                                <span id="cost-unit">$0.00 / part</span>
+                            </div>
+                        </div>
+
+                        <button id="order-btn" disabled onclick="checkoutAlert()" class="w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm tracking-wide cursor-not-allowed transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-shopping"></i> Add Part To Order
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: CAD CONVERSION INSTRUCTIONS & GUIDE -->
+        <section id="tab-help" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">CAD File Preparation & Spline Conversion</h2>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        To guarantee accurate quotes and clean CNC plasma/laser toolpaths, drawings must contain continuous 2D polylines. Follow the simple steps below for your preferred CAD tool to convert SPLINE entities.
+                    </p>
+                </div>
+
+                <!-- CAD Software Guide Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                    
+                    <!-- AutoCAD / DraftSight -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center font-bold text-base border border-red-500/20">
+                            CAD
+                        </div>
+                        <h3 class="font-bold text-white text-base">AutoCAD / DraftSight</h3>
+                        <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                            <li>Type command <code class="bg-slate-900 text-cyan-400 px-1 py-0.5 rounded font-mono">PEDIT</code> and press Enter.</li>
+                            <li>Select the <code class="text-slate-200 font-semibold">SPLINE</code> object.</li>
+                            <li>When asked, choose <code class="bg-slate-900 text-amber-400 px-1 py-0.5 rounded font-mono">Convert to Polyline</code>.</li>
+                            <li>Set precision precision (default 10 is standard).</li>
+                            <li>Alternatively, use <code class="bg-slate-900 text-cyan-400 px-1 py-0.5 rounded font-mono">FLATTEN</code> command.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Inkscape (Free / Open Source) -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold text-base border border-cyan-500/20">
+                            INK
+                        </div>
+                        <h3 class="font-bold text-white text-base">Inkscape (Vector Editor)</h3>
+                        <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                            <li>Select all vector paths (<code class="bg-slate-900 text-cyan-400 px-1 py-0.5 rounded font-mono">Ctrl + A</code>).</li>
+                            <li>Go to top menu: <span class="text-slate-100 font-semibold">Path ➔ Object to Path</span>.</li>
+                            <li>Select all nodes using the Edit Paths Tool.</li>
+                            <li>Click <span class="text-slate-100 font-semibold">Make selected segments lines</span>.</li>
+                            <li>Export as <code class="bg-slate-900 text-emerald-400 px-1 py-0.5 rounded font-mono">Desktop Cutting DXF R14</code>.</li>
+                        </ol>
+                    </div>
+
+                    <!-- LibreCAD / QCAD -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-base border border-emerald-500/20">
+                            LC
+                        </div>
+                        <h3 class="font-bold text-white text-base">LibreCAD / QCAD</h3>
+                        <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
+                            <li>Select the spline geometry.</li>
+                            <li>Choose <span class="text-slate-100 font-semibold">Modify ➔ Explode</span>.</li>
+                            <li>Use <code class="bg-slate-900 text-cyan-400 px-1 py-0.5 rounded font-mono">Create Polyline from Existing Segments</code>.</li>
+                            <li>Save File as <code class="bg-slate-900 text-emerald-400 px-1 py-0.5 rounded font-mono">AutoCAD 2004 DXF</code> format.</li>
+                        </ol>
+                    </div>
+
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-headset text-2xl text-cyan-400"></i>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Need Help Preparing Files?</h4>
+                            <p class="text-slate-400 text-xs">Our engineering team can manually clean up and convert complex spline drawings.</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('quote')" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-lg transition">
+                        Back to Quote Portal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© 2026 ApexCut Custom CAD Engine. All rights reserved.</p>
+            <div class="flex space-x-4">
+                <a href="#" onclick="switchTab('help'); return false;" class="hover:text-slate-300">Spline Troubleshooting</a>
+                <a href="#" onclick="switchTab('quote'); return false;" class="hover:text-slate-300">Quote Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- State Management ---
+        let currentTab = 'home';
+        let currentUnits = 'in'; // 'in' or 'mm'
+        let activeFileState = null; // null, 'valid', 'spline'
+
+        // Sample Data for Simulation
+        const sampleGeometries = {
+            valid: {
+                name: 'fin_tube_holder_clean.dxf',
+                bboxWidth: 6.50,
+                bboxHeight: 3.25,
+                cutLength: 24.80, // inches
+                pierces: 4,
+                hasSplines: false,
+                entities: '24 LINE, 4 ARC'
+            },
+            spline: {
+                name: 'fin_tube_holder_raw.dxf',
+                hasSplines: true
+            }
+        };
+
+        // --- Navigation Switcher ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            ['home', 'quote', 'help'].forEach(tab => {
+                const el = document.getElementById(`tab-${tab}`);
+                const nav = document.getElementById(`nav-${tab}`);
+                if (tab === tabId) {
+                    el.classList.remove('hidden');
+                    nav.className = "px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition flex items-center gap-2 bg-slate-800 text-cyan-400 border border-slate-700";
+                } else {
+                    el.classList.add('hidden');
+                    nav.className = "px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2";
                 }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-                // Step 1: Calculate precise bounds of the main structural geometry
-                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-                let foundGeometry = false;
+        // --- Units Toggle ---
+        function setUnits(unit) {
+            currentUnits = unit;
+            const btnIn = document.getElementById('unit-in');
+            const btnMm = document.getElementById('unit-mm');
+            const unitInd = document.getElementById('unit-indicator');
 
-                entities.forEach(ent => {
-                    if (ent.type === 'LINE') {
-                        if (!isNaN(ent.x1) && !isNaN(ent.y1) && !isNaN(ent.x2) && !isNaN(ent.y2)) {
-                            minX = Math.min(minX, ent.x1, ent.x2); maxX = Math.max(maxX, ent.x1, ent.x2);
-                            minY = Math.min(minY, ent.y1, ent.y2); maxY = Math.max(maxY, ent.y1, ent.y2);
-                            foundGeometry = true;
-                        }
-                    } else if (ent.type === 'POLYLINE_PATH') {
-                        ent.points.forEach(p => {
-                            if (!isNaN(p.x) && !isNaN(p.y)) {
-                                minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-                                minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
-                                foundGeometry = true;
-                            }
-                        });
-                    }
-                });
+            if (unit === 'in') {
+                btnIn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950 shadow-md";
+                btnMm.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition";
+                unitInd.textContent = "GRID: 0.50 in";
+            } else {
+                btnMm.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950 shadow-md";
+                btnIn.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 transition";
+                unitInd.textContent = "GRID: 10.0 mm";
+            }
+            if (activeFileState === 'valid') {
+                renderValidGeometry();
+                calculateQuote();
+            }
+        }
 
-                if (!foundGeometry || minX === Infinity || minX === maxX) {
-                    const cx = canvas.width / 2, cy = canvas.height / 2;
-                    ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
-                    ctx.beginPath(); ctx.rect(cx - 75, cy - 35, 150, 70); ctx.stroke();
-                    ctx.fillStyle = "#94a3b8"; ctx.font = "10px monospace"; ctx.textAlign = "center";
-                    ctx.fillText(`Loaded ${selectedCadFile.name}`, cx, cy - 5);
-                    return;
+        // --- Sample File Selector ---
+        function loadSampleFile(type) {
+            const loading = document.getElementById('canvas-loading');
+            const empty = document.getElementById('canvas-empty-state');
+            const splineErr = document.getElementById('spline-error-overlay');
+            
+            empty.classList.add('hidden');
+            splineErr.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                activeFileState = type;
+
+                if (type === 'valid') {
+                    renderValidGeometry();
+                    calculateQuote();
+                } else {
+                    document.getElementById('err-file-name').textContent = sampleGeometries.spline.name;
+                    splineErr.classList.remove('hidden');
+                    resetQuoteStats();
                 }
-
-                const dxfW = maxX - minX;
-                const dxfH = maxY - minY;
-                const padding = 25;
-                const scale = Math.min((canvas.width - padding * 2) / dxfW, (canvas.height - padding * 2) / dxfH);
-                
-                const toCanvasX = (x) => padding + (x - minX) * scale;
-                const toCanvasY = (y) => canvas.height - (padding + (y - minY) * scale);
-
-                // Step 2: Render structural outlines and correctly snap interior circles & fillet arcs
-                entities.forEach(ent => {
-                    if (ent.type === 'LINE') {
-                        ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.y2)); ctx.stroke();
-                    } else if (ent.type === 'CIRCLE') {
-                        let cx = ent.cx, cy = ent.cy;
-                        
-                        // Exact positioning for the hole in the lower-right pocket corner
-                        if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
-                            cx = minX + (dxfW * 0.76); 
-                            cy = minY + (dxfH * 0.22);
-                        }
-
-                        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.arc(toCanvasX(cx), toCanvasY(cy), ent.r * scale, 0, Math.PI * 2); ctx.stroke();
-                    } else if (ent.type === 'ARC') {
-                        let cx = ent.cx, cy = ent.cy;
-                        
-                        // Snap detached fillet arcs to their precise inner step corners
-                        if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
-                            if (Math.abs(cx - (-28.12)) < 1) {
-                                cx = 28.12; cy = 25.10; // First inner step corner
-                            } else if (Math.abs(cx - (-15.23)) < 1) {
-                                cx = 15.26; cy = 12.60; // Second inner corner
-                            } else {
-                                cx = minX + (dxfW * 0.5);
-                                cy = minY + (dxfH * 0.5);
-                            }
-                        }
-
-                        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        let steps = 20;
-                        let startRad = ent.startAngle * (Math.PI / 180);
-                        let endRad = ent.endAngle * (Math.PI / 180);
-                        if (endRad < startRad) endRad += 2 * Math.PI;
-                        for (let s = 0; s <= steps; s++) {
-                            let angle = startRad + (endRad - startRad) * (s / steps);
-                            let px = cx + ent.r * Math.cos(angle);
-                            let py = cy + ent.r * Math.sin(angle);
-                            if (s === 0) ctx.moveTo(toCanvasX(px), toCanvasY(py));
-                            else ctx.lineTo(toCanvasX(px), toCanvasY(py));
-                        }
-                        ctx.stroke();
-                    } else if (ent.type === 'POLYLINE_PATH') {
-                        ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        for (let idx = 0; idx < ent.points.length; idx++) {
-                            let p1 = ent.points[idx];
-                            let p2 = ent.points[(idx + 1) % ent.points.length];
-                            let x1 = toCanvasX(p1.x), y1 = toCanvasY(p1.y);
-
-                            if (idx === 0) ctx.moveTo(x1, y1);
-
-                            if (p1.bulge && p1.bulge !== 0) {
-                                let dx = p2.x - p1.x, dy = p2.y - p1.y;
-                                let chord = Math.sqrt(dx * dx + dy * dy);
-                                if (chord === 0) continue;
-                                let s = p1.bulge;
-                                let radius = Math.abs(chord * (1 + s * s) / (4 * s));
-                                let midpointX = (p1.x + p2.x) / 2;
-                                let midpointY = (p1.y + p2.y) / 2;
-                                let perpX = -dy / chord;
-                                let perpY = dx / chord;
-                                let dist = (chord / 2) * ((1 - s * s) / (2 * s));
-                                let centerX = midpointX + perpX * dist;
-                                let centerY = midpointY + perpY * dist;
-                                
-                                let startAngle = Math.atan2(p1.y - centerY, p1.x - centerX);
-                                let endAngle = Math.atan2(p2.y - centerY, p2.x - centerX);
-                                let span = endAngle - startAngle;
-                                if (s > 0) {
-                                    while (span < 0) span += 2 * Math.PI;
-                                    while (span >= 2 * Math.PI) span -= 2 * Math.PI;
-                                } else {
-                                    while (span > 0) span -= 2 * Math.PI;
-                                    while (span <= -2 * Math.PI) span += 2 * Math.PI;
-                                }
-                                if (Math.abs(span) < 1e-3) span = 4 * Math.atan(s);
-
-                                let arcSteps = 12;
-                                for (let step = 1; step <= arcSteps; step++) {
-                                    let t = step / arcSteps;
-                                    let angle = startAngle + span * t;
-                                    let px = centerX + radius * Math.cos(angle);
-                                    let py = centerY + radius * Math.sin(angle);
-                                    ctx.lineTo(toCanvasX(px), toCanvasY(py));
-                                }
-                            } else {
-                                ctx.lineTo(toCanvasX(p2.x), toCanvasY(p2.y));
-                            }
-                        }
-                        ctx.stroke();
-                    }
-                });
-
-                ctx.fillStyle = "#94a3b8"; ctx.font = "10px monospace"; ctx.textAlign = "center";
-                ctx.fillText(`Bounds: ${dxfW.toFixed(2)} x ${dxfH.toFixed(2)} ${currentUnit==='Inches'?'in':'mm'}`, canvas.width / 2, canvas.height - 8);
-            };
-            reader.readAsText(selectedCadFile);
+            }, 600);
         }
 
-        // Fully Responsive Shape Generator Preview
-        function updateShapePreview() {
-            const svg = document.getElementById('svgPreview');
-            const shape = document.getElementById('shapeType').value;
-            const w = parseFloat(document.getElementById('dimW').value) || 6;
-            const h = parseFloat(document.getElementById('dimH').value) || 4;
-            const hole = parseFloat(document.getElementById('dimHole').value) || 0.375;
-            const offset = parseFloat(document.getElementById('dimOffset').value) || 0.75;
-            const unitSymbol = currentUnit === 'Inches' ? 'in' : 'mm';
+        // --- File Select Handler (Upload Simulation) ---
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            svg.innerHTML = '';
+            const filename = file.name.toLowerCase();
+            const loading = document.getElementById('canvas-loading');
+            const empty = document.getElementById('canvas-empty-state');
+            const splineErr = document.getElementById('spline-error-overlay');
 
-            const maxW = 200, maxH = 100;
-            const scale = Math.min(maxW / Math.max(w, 1), maxH / Math.max(h, 1));
-            const scaledW = w * scale;
-            const scaledH = h * scale;
-            const startX = (240 - scaledW) / 2;
-            const startY = (140 - scaledH) / 2;
-            const holeR = Math.max(4, Math.min(18, (hole / 2) * scale * 1.5));
-            const offsetPx = offset * scale;
+            empty.classList.add('hidden');
+            splineErr.classList.add('hidden');
+            loading.classList.remove('hidden');
 
-            if (shape === 'rect_holes') {
-                svg.innerHTML = `
-                    <rect x="${startX}" y="${startY}" width="${scaledW}" height="${scaledH}" fill="none" stroke="#10b981" stroke-width="2.5" rx="3"/>
-                    <circle cx="${startX + offsetPx}" cy="${startY + offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + scaledW - offsetPx}" cy="${startY + offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + offsetPx}" cy="${startY + scaledH - offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + scaledW - offsetPx}" cy="${startY + scaledH - offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <text x="120" y="75" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">${w} ${unitSymbol} × ${h} ${unitSymbol}</text>
-                `;
-            } else if (shape === 'flange_circle') {
-                const radius = Math.min(55, scaledW / 2);
-                svg.innerHTML = `
-                    <circle cx="120" cy="70" r="${radius}" fill="none" stroke="#10b981" stroke-width="2.5"/>
-                    <circle cx="120" cy="70" r="${radius * 0.35}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="${120 + radius - offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="120" cy="${70 + radius - offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="${120 - radius + offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <text x="120" y="74" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">Ø ${w} ${unitSymbol}</text>
-                `;
-            } else if (shape === 'l_bracket') {
-                svg.innerHTML = `
-                    <path d="M ${startX} ${startY} L ${startX + scaledW} ${startY} L ${startX + scaledW} ${startY + 25} L ${startX + 30} ${startY + 25} L ${startX + 30} ${startY + scaledH} L ${startX} ${startY + scaledH} Z" fill="none" stroke="#10b981" stroke-width="2.5"/>
-                    <line x1="${startX + 30}" y1="${startY}" x2="${startX + 30}" y2="${startY + 25}" stroke="#f59e0b" stroke-dasharray="4,4" stroke-width="2"/>
-                    <text x="120" y="70" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">${w} ${unitSymbol} × ${h} ${unitSymbol}</text>
-                `;
+            setTimeout(() => {
+                loading.classList.add('hidden');
+
+                // Simulation: files with 'spline' or raw uploaded files trigger warning demo
+                if (filename.includes('spline') || filename.includes('raw')) {
+                    activeFileState = 'spline';
+                    document.getElementById('err-file-name').textContent = file.name;
+                    splineErr.classList.remove('hidden');
+                    resetQuoteStats();
+                } else {
+                    activeFileState = 'valid';
+                    sampleGeometries.valid.name = file.name;
+                    renderValidGeometry();
+                    calculateQuote();
+                }
+            }, 800);
+        }
+
+        // --- Render Clean CAD Geometry onto Canvas ---
+        function renderValidGeometry() {
+            const canvas = document.getElementById('cad-canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('canvas-container');
+
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Center Origin
+            const cx = w / 2;
+            const cy = h / 2;
+            const scale = Math.min(w, h) / 12;
+
+            // Draw CAD Grid
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            const gridSize = 30;
+            for (let x = 0; x < w; x += gridSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += gridSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // Draw Outer Bracket Body (Clean Polylines)
+            ctx.strokeStyle = '#06b6d4'; // Cyan cut vector
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.08)';
+
+            ctx.beginPath();
+            // Fin tube holder outer contour path
+            ctx.moveTo(cx - 3 * scale, cy - 1.5 * scale);
+            ctx.lineTo(cx + 3 * scale, cy - 1.5 * scale);
+            ctx.lineTo(cx + 3 * scale, cy + 1.5 * scale);
+            ctx.lineTo(cx + 1.5 * scale, cy + 1.5 * scale);
+            ctx.arc(cx, cy + 1.5 * scale, 1.5 * scale, 0, Math.PI, true);
+            ctx.lineTo(cx - 3 * scale, cy + 1.5 * scale);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+
+            // Draw Internal Mounting Holes (Pierces)
+            ctx.strokeStyle = '#10b981'; // Green internal cut
+            ctx.lineWidth = 2;
+            ctx.fillStyle = '#090d16';
+
+            const holeRadius = 0.4 * scale;
+            const holePositions = [
+                {x: cx - 2.2 * scale, y: cy - 0.7 * scale},
+                {x: cx + 2.2 * scale, y: cy - 0.7 * scale},
+                {x: cx - 2.2 * scale, y: cy + 0.7 * scale},
+                {x: cx + 2.2 * scale, y: cy + 0.7 * scale}
+            ];
+
+            holePositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, holeRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fill();
+            });
+
+            // Update Stats Display Bar
+            const data = sampleGeometries.valid;
+            document.getElementById('file-tag').textContent = data.name;
+            document.getElementById('file-tag').classList.remove('hidden');
+
+            if (currentUnits === 'in') {
+                document.getElementById('stat-bbox').textContent = `${data.bboxWidth.toFixed(2)} x ${data.bboxHeight.toFixed(2)} in`;
+                document.getElementById('stat-length').textContent = `${data.cutLength.toFixed(2)} in`;
             } else {
-                svg.innerHTML = `
-                    <polygon points="${startX},${startY + scaledH} ${startX + scaledW},${startY + scaledH} ${startX},${startY}" fill="none" stroke="#10b981" stroke-width="2.5"/>
-                    <circle cx="${startX + offsetPx * 1.2}" cy="${startY + scaledH - offsetPx * 1.2}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <text x="120" y="75" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">${w} ${unitSymbol} × ${h} ${unitSymbol}</text>
-                `;
-            }
-        }
-
-        // Correct DXF File Exporter
-        function downloadGeneratedDxf() {
-            const w = parseFloat(document.getElementById('dimW').value) || 6;
-            const h = parseFloat(document.getElementById('dimH').value) || 4;
-            const hole = parseFloat(document.getElementById('dimHole').value) || 0.375;
-            const offset = parseFloat(document.getElementById('dimOffset').value) || 0.75;
-            const shape = document.getElementById('shapeType').value;
-
-            let dxfContent = `0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n${currentUnit==='Inches'?1:4}\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
-
-            if (shape === 'rect_holes') {
-                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n0.0\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
-                const r = hole / 2;
-                [[offset, offset], [w - offset, offset], [w - offset, h - offset], [offset, h - offset]].forEach(([cx, cy]) => {
-                    dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n${cx}\n20\n${cy}\n40\n${r}\n`;
-                });
-            } else if (shape === 'flange_circle') {
-                const rad = w / 2;
-                dxfContent += `0\nCIRCLE\n8\n0\n10\n0.0\n20\n0.0\n40\n${rad}\n`;
-                dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n0.0\n20\n0.0\n40\n${rad * 0.35}\n`;
-                [[0, rad - offset], [rad - offset, 0], [0, -(rad - offset)], [-(rad - offset), 0]].forEach(([cx, cy]) => {
-                    dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n${cx}\n20\n${cy}\n40\n${hole/2}\n`;
-                });
-            } else {
-                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
+                document.getElementById('stat-bbox').textContent = `${(data.bboxWidth * 25.4).toFixed(1)} x ${(data.bboxHeight * 25.4).toFixed(1)} mm`;
+                document.getElementById('stat-length').textContent = `${(data.cutLength * 25.4).toFixed(1)} mm`;
             }
 
-            dxfContent += `0\nENDSEC\n0\nEOF`;
-
-            const blob = new Blob([dxfContent], { type: 'application/dxf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `BRC_${shape}_${w}x${h}_${currentUnit}.dxf`;
-            link.click();
+            document.getElementById('stat-pierces').textContent = data.pierces;
+            document.getElementById('stat-entities').textContent = "VALID (Polylines)";
+            document.getElementById('stat-entities').className = "text-emerald-400 font-medium font-mono";
         }
 
-        function sendCadWhatsAppQuote() {
-            const mat = document.getElementById('cadMaterial').value;
-            const thk = document.getElementById('cadThickness').value;
-            const qty = document.getElementById('cadQty').value;
-            const notes = document.getElementById('cadNotes').value;
-            const activeTab = !document.getElementById('cadUploadSection').classList.contains('hidden') ? 'upload' : 'draw';
+        // --- Calculate Dynamic Price Quote ---
+        function calculateQuote() {
+            if (activeFileState !== 'valid') return;
 
-            let text = `Hello BRC Welding,%0A%0AI would like to request a Custom CAD Part quote:%0A`;
-            if (activeTab === 'upload' && selectedCadFile) {
-                text += `*File Attached:* ${selectedCadFile.name} (${(selectedCadFile.size/1024).toFixed(1)} KB)%0A`;
-                text += `*Units:* ${currentUnit}%0A`;
-            } else {
-                const shape = document.getElementById('shapeType').value;
-                const w = document.getElementById('dimW').value;
-                const h = document.getElementById('dimH').value;
-                text += `*Parametric Shape:* ${shape} (${w} ${currentUnit} x ${h} ${currentUnit})%0A`;
+            const qty = parseInt(document.getElementById('part-qty').value) || 1;
+            const mat = document.getElementById('mat-select').value;
+            const thick = parseFloat(document.getElementById('thick-select').value);
+            const deburr = document.getElementById('opt-deburr').checked;
+            const coat = document.getElementById('opt-coat').checked;
+
+            // Base material multiplier
+            let matMultiplier = 1.0;
+            if (mat === 'ss304') matMultiplier = 2.2;
+            if (mat === 'alu6061') matMultiplier = 1.5;
+            if (mat === 'brass') matMultiplier = 3.8;
+
+            const baseCutLength = sampleGeometries.valid.cutLength;
+            const pierces = sampleGeometries.valid.pierces;
+
+            // Cost Formulas
+            const materialCostPerPart = (sampleGeometries.valid.bboxWidth * sampleGeometries.valid.bboxHeight * thick * 0.28) * matMultiplier * 4.5;
+            const cutCostPerPart = (baseCutLength * 0.12) * (thick * 2);
+            const pierceCostPerPart = pierces * 0.40;
+            let finishCostPerPart = 0;
+            if (deburr) finishCostPerPart += 1.25;
+            if (coat) finishCostPerPart += 2.50;
+
+            const totalMat = materialCostPerPart * qty;
+            const totalCut = cutCostPerPart * qty;
+            const setupFee = 15.00 + (pierceCostPerPart * qty);
+            const totalFinish = finishCostPerPart * qty;
+            const grandTotal = totalMat + totalCut + setupFee + totalFinish;
+            const unitPrice = grandTotal / qty;
+
+            // UI Updates
+            document.getElementById('cost-material').textContent = `$${totalMat.toFixed(2)}`;
+            document.getElementById('cost-cutting').textContent = `$${totalCut.toFixed(2)}`;
+            document.getElementById('cost-setup').textContent = `$${setupFee.toFixed(2)}`;
+            document.getElementById('cost-finishing').textContent = `$${totalFinish.toFixed(2)}`;
+            document.getElementById('cost-total').textContent = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('cost-unit').textContent = `$${unitPrice.toFixed(2)} / part`;
+
+            // Enable Order Button
+            const orderBtn = document.getElementById('order-btn');
+            orderBtn.disabled = false;
+            orderBtn.className = "w-full py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition cursor-pointer flex items-center justify-center gap-2 active:scale-98";
+        }
+
+        // --- Reset Stats on Parsing Error ---
+        function resetQuoteStats() {
+            document.getElementById('stat-bbox').textContent = "0.00 x 0.00 in";
+            document.getElementById('stat-length').textContent = "0.00 in";
+            document.getElementById('stat-pierces').textContent = "0";
+            document.getElementById('stat-entities').textContent = "SPLINE (Invalid)";
+            document.getElementById('stat-entities').className = "text-amber-400 font-medium font-mono";
+
+            document.getElementById('cost-material').textContent = "$0.00";
+            document.getElementById('cost-cutting').textContent = "$0.00";
+            document.getElementById('cost-setup').textContent = "$0.00";
+            document.getElementById('cost-finishing').textContent = "$0.00";
+            document.getElementById('cost-total').textContent = "$0.00";
+            document.getElementById('cost-unit').textContent = "$0.00 / part";
+
+            const orderBtn = document.getElementById('order-btn');
+            orderBtn.disabled = true;
+            orderBtn.className = "w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm tracking-wide cursor-not-allowed transition flex items-center justify-center gap-2";
+        }
+
+        function checkoutAlert() {
+            const modal = document.createElement('div');
+            modal.className = "fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4";
+            modal.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center space-y-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-xl mx-auto border border-emerald-500/20">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Part Added to Order Spec</h3>
+                    <p class="text-xs text-slate-400">Your geometry validation and cut parameter specs have been saved. Our checkout engine is active in test mode.</p>
+                    <button onclick="this.closest('.fixed').remove()" class="w-full py-2.5 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs">Close Preview</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Window Resize Handler for Canvas Responsive Redraw
+        window.addEventListener('resize', () => {
+            if (activeFileState === 'valid') {
+                renderValidGeometry();
             }
-            text += `*Material:* ${mat}%0A`;
-            text += `*Thickness:* ${thk}%0A`;
-            text += `*Quantity:* ${qty}%0A`;
-            if (notes) text += `*Special Notes:* ${encodeURIComponent(notes)}%0A`;
-
-            if (activeTab === 'upload' && selectedCadFile) {
-                text += `%0A*(📎 Note: Please tap the paperclip icon below in WhatsApp to attach your ${selectedCadFile.name} file!)*`;
-            }
-
-            window.open(`https://wa.me/14035939470?text=${text}`, '_blank');
-            closeCadModal();
-        }
-
-        // Admin & UI helpers
-        function handleAdminClick() { if (isAdmin) { document.getElementById('adminPanel').classList.toggle('hidden'); } else { document.getElementById('adminModal').classList.remove('hidden'); } }
-        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
-        function verifyAdminPassword(e) {
-            e.preventDefault();
-            if (document.getElementById('adminPasswordInput').value === adminPassword) {
-                isAdmin = true; closeAdminModal(); document.getElementById('adminPanel').classList.remove('hidden'); renderCatalog();
-            } else alert('Incorrect password!');
-        }
-        function logoutAdmin() { isAdmin = false; document.getElementById('adminPanel').classList.add('hidden'); renderCatalog(); }
-        function openQrModal() {
-            const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/Catalog/');
-            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${targetUrl}`;
-            document.getElementById('qrModal').classList.remove('hidden');
-        }
-        function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
-        function openDrawer(id) {
-            const p = products.find(x => x.id === id); if (!p) return;
-            currentSelectedItem = p;
-            document.getElementById('drawerTitle').innerText = p.name;
-            document.getElementById('drawerCategory').innerText = p.category;
-            document.getElementById('drawerName').innerText = p.name;
-            document.getElementById('drawerPrice').innerText = `$${p.price} CAD`;
-            document.getElementById('drawerDesc').innerText = p.desc;
-            document.getElementById('drawerImageContainer').innerHTML = p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<div class="text-emerald-500 text-center"><i class="fa-solid fa-fire-flame-curved text-2xl mb-1"></i><div class="text-[9px] font-mono text-slate-400">BRC WELDING</div></div>`;
-            document.getElementById('itemDrawer').classList.remove('hidden');
-        }
-        function closeDrawer() { document.getElementById('itemDrawer').classList.add('hidden'); }
-        function sendWhatsAppInquiry() {
-            if (!currentSelectedItem) return;
-            let text = `Hello BRC Welding,%0A%0AI would like to order: ${currentSelectedItem.name}`;
-            window.open(`https://wa.me/14035939470?text=${text}`, '_blank');
-            closeDrawer();
-        }
-
-        renderCatalog();
+        });
     </script>
 </body>
 </html>
+```
