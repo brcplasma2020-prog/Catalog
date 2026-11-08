@@ -83,7 +83,7 @@
                     <span class="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/30">CUSTOM CUTTING</span>
                     <h3 class="font-bold text-sm text-white">Need a Custom Part Cut or Bent?</h3>
                 </div>
-                <p class="text-xs text-slate-300">Upload DXF files with full Polyline & Arc radius rendering, or build scalable parametric shapes.</p>
+                <p class="text-xs text-slate-300">Upload DXF files with full arc radius parsing, or build shapes with active edge-offset scaling.</p>
             </div>
             <button onclick="openCadModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center justify-center space-x-1.5 shadow-md shrink-0">
                 <i class="fa-solid fa-compass-drafting text-sm"></i>
@@ -147,7 +147,7 @@
 
                         <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-center">
                             <div class="text-[10px] text-slate-400 mb-1 font-mono flex items-center justify-between px-1">
-                                <span>2D DXF Vector Render (Polylines & Arcs)</span>
+                                <span>2D DXF Vector Render (Arcs & Radii)</span>
                                 <span id="previewUnitBadge" class="text-amber-400 font-bold">Inches</span>
                             </div>
                             <canvas id="uploadPreviewCanvas" class="w-full h-44 bg-slate-900 rounded border border-slate-800"></canvas>
@@ -182,7 +182,7 @@
                         </div>
                         <div>
                             <label class="block text-slate-400 text-[10px] mb-0.5">Edge Offset (<span class="unitLabel">in</span>)</label>
-                            <input type="number" id="dimOffset" value="0.5" step="0.1" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
+                            <input type="number" id="dimOffset" value="0.75" step="0.1" oninput="updateShapePreview()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
                         </div>
                     </div>
 
@@ -414,7 +414,7 @@
             }
         }
 
-        // Advanced DXF Parser with Polyline Vertex & Arc Support
+        // Full DXF Arc / Radius Canvas Renderer
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -439,7 +439,6 @@
                 let entities = [];
                 let currentEntity = null;
                 let code = null;
-                let polyPoints = [];
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
@@ -448,27 +447,11 @@
                     } else {
                         const value = line;
                         if (code === 0) {
-                            if (currentEntity) {
-                                if (currentEntity.type === 'POLYLINE' && polyPoints.length > 1) {
-                                    entities.push({ type: 'POLYLINE_PATH', points: polyPoints });
-                                    polyPoints = [];
-                                }
-                                entities.push(currentEntity);
-                            }
+                            if (currentEntity) entities.push(currentEntity);
                             currentEntity = { type: value, x1: 0, y1: 0, x2: 0, y2: 0, cx: 0, cy: 0, r: 0, startAngle: 0, endAngle: 360 };
-                        } else if (code === 10) {
-                            if (currentEntity && currentEntity.type === 'VERTEX') {
-                                polyPoints.push({ x: parseFloat(value), y: 0 });
-                            } else if (currentEntity) {
-                                currentEntity.x1 = currentEntity.cx = parseFloat(value);
-                            }
-                        } else if (code === 20) {
-                            if (currentEntity && currentEntity.type === 'VERTEX' && polyPoints.length > 0) {
-                                polyPoints[polyPoints.length - 1].y = parseFloat(value);
-                            } else if (currentEntity) {
-                                currentEntity.y1 = currentEntity.cy = parseFloat(value);
-                            }
                         } else if (currentEntity) {
+                            if (code === 10) currentEntity.x1 = currentEntity.cx = parseFloat(value);
+                            if (code === 20) currentEntity.y1 = currentEntity.cy = parseFloat(value);
                             if (code === 11) currentEntity.x2 = parseFloat(value);
                             if (code === 21) currentEntity.y2 = parseFloat(value);
                             if (code === 40) currentEntity.r = parseFloat(value);
@@ -491,12 +474,6 @@
                     } else if (ent.type === 'CIRCLE' || ent.type === 'ARC') {
                         minX = Math.min(minX, ent.cx - ent.r); maxX = Math.max(maxX, ent.cx + ent.r);
                         minY = Math.min(minY, ent.cy - ent.r); maxY = Math.max(maxY, ent.cy + ent.r);
-                        foundGeometry = true;
-                    } else if (ent.type === 'POLYLINE_PATH') {
-                        ent.points.forEach(p => {
-                            minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-                            minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
-                        });
                         foundGeometry = true;
                     }
                 });
@@ -528,15 +505,9 @@
                     } else if (ent.type === 'ARC') {
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
                         ctx.beginPath();
-                        ctx.arc(toCanvasX(ent.cx), toCanvasY(ent.cy), ent.r * scale, -ent.endAngle * Math.PI / 180, -ent.startAngle * Math.PI / 180);
-                        ctx.stroke();
-                    } else if (ent.type === 'POLYLINE_PATH') {
-                        ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        ent.points.forEach((p, idx) => {
-                            if (idx === 0) ctx.moveTo(toCanvasX(p.x), toCanvasY(p.y));
-                            else ctx.lineTo(toCanvasX(p.x), toCanvasY(p.y));
-                        });
+                        const startRad = (-ent.endAngle) * (Math.PI / 180);
+                        const endRad = (-ent.startAngle) * (Math.PI / 180);
+                        ctx.arc(toCanvasX(ent.cx), toCanvasY(ent.cy), ent.r * scale, startRad, endRad);
                         ctx.stroke();
                     }
                 });
@@ -547,18 +518,18 @@
             reader.readAsText(selectedCadFile);
         }
 
-        // Fully Dynamic Parametric Shape Generator & Scaled SVG Preview
+        // Shape Generator with Active Edge Offset scaling
         function updateShapePreview() {
             const svg = document.getElementById('svgPreview');
             const shape = document.getElementById('shapeType').value;
             const w = parseFloat(document.getElementById('dimW').value) || 6;
             const h = parseFloat(document.getElementById('dimH').value) || 4;
             const hole = parseFloat(document.getElementById('dimHole').value) || 0.375;
+            const offset = parseFloat(document.getElementById('dimOffset').value) || 0.75;
             const unitSymbol = currentUnit === 'Inches' ? 'in' : 'mm';
 
             svg.innerHTML = '';
 
-            // Compute scaling to fit inside 240x140 viewBox cleanly
             const maxW = 200, maxH = 100;
             const scale = Math.min(maxW / Math.max(w, 1), maxH / Math.max(h, 1));
             const scaledW = w * scale;
@@ -566,14 +537,15 @@
             const startX = (240 - scaledW) / 2;
             const startY = (140 - scaledH) / 2;
             const holeR = Math.max(4, Math.min(18, (hole / 2) * scale * 1.5));
+            const offsetPx = offset * scale;
 
             if (shape === 'rect_holes') {
                 svg.innerHTML = `
                     <rect x="${startX}" y="${startY}" width="${scaledW}" height="${scaledH}" fill="none" stroke="#10b981" stroke-width="2.5" rx="3"/>
-                    <circle cx="${startX + 18}" cy="${startY + 18}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + scaledW - 18}" cy="${startY + 18}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + 18}" cy="${startY + scaledH - 18}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="${startX + scaledW - 18}" cy="${startY + scaledH - 18}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="${startX + offsetPx}" cy="${startY + offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="${startX + scaledW - offsetPx}" cy="${startY + offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="${startX + offsetPx}" cy="${startY + scaledH - offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="${startX + scaledW - offsetPx}" cy="${startY + scaledH - offsetPx}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
                     <text x="120" y="75" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">${w} ${unitSymbol} × ${h} ${unitSymbol}</text>
                 `;
             } else if (shape === 'flange_circle') {
@@ -581,10 +553,10 @@
                 svg.innerHTML = `
                     <circle cx="120" cy="70" r="${radius}" fill="none" stroke="#10b981" stroke-width="2.5"/>
                     <circle cx="120" cy="70" r="${radius * 0.35}" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                    <circle cx="120" cy="${70 - radius + 12}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="${120 + radius - 12}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="120" cy="${70 + radius - 12}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-                    <circle cx="${120 - radius + 12}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="120" cy="${70 - radius + offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="${120 + radius - offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="120" cy="${70 + radius - offsetPx}" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+                    <circle cx="${120 - radius + offsetPx}" cy="70" r="${holeR * 0.8}" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
                     <text x="120" y="74" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">Ø ${w} ${unitSymbol}</text>
                 `;
             } else if (shape === 'l_bracket') {
@@ -596,7 +568,7 @@
             } else {
                 svg.innerHTML = `
                     <polygon points="${startX},${startY + scaledH} ${startX + scaledW},${startY + scaledH} ${startX},${startY}" fill="none" stroke="#10b981" stroke-width="2.5"/>
-                    <circle cx="${startX + 25}" cy="${startY + scaledH - 25}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="${startX + offsetPx * 1.2}" cy="${startY + scaledH - offsetPx * 1.2}" r="${holeR}" fill="none" stroke="#f59e0b" stroke-width="2"/>
                     <text x="120" y="75" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">${w} ${unitSymbol} × ${h} ${unitSymbol}</text>
                 `;
             }
@@ -606,14 +578,18 @@
             const w = parseFloat(document.getElementById('dimW').value) || 6;
             const h = parseFloat(document.getElementById('dimH').value) || 4;
             const hole = parseFloat(document.getElementById('dimHole').value) || 0.375;
+            const offset = parseFloat(document.getElementById('dimOffset').value) || 0.75;
             const shape = document.getElementById('shapeType').value;
 
             let dxfContent = `0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n${currentUnit==='Inches'?1:4}\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
 
             if (shape === 'rect_holes') {
-                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n0.0\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n${w}\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n${h}\n11\n0.0\n21\n0.0\n`;
                 const r = hole / 2;
-                [[0.5, 0.5], [w - 0.5, 0.5], [w - 0.5, h - 0.5], [0.5, h - 0.5]].forEach(([cx, cy]) => {
+                [[offset, offset], [w - offset, offset], [w - offset, h - offset], [offset, h - offset]].forEach(([cx, cy]) => {
                     dxfContent += `0\nCIRCLE\n8\nHOLES\n10\n${cx}\n20\n${cy}\n40\n${r}\n`;
                 });
             } else {
