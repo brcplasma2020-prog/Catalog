@@ -11,10 +11,31 @@
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
         @media print {
+            @page {
+                size: 90.3mm 29mm;
+                margin: 0;
+            }
             body * { visibility: hidden; }
-            #printableArea, #printableArea * { visibility: visible; }
+            #printableArea, #printableArea * { 
+                visibility: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
             #printableArea {
-                position: absolute; left: 0; top: 0; width: 90.3mm !important; height: 29mm !important; margin: 0; padding: 0;
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                /* 300 DPI exact dimensions: 90.3mm = 1067px, 29mm = 343px */
+                width: 1067px !important; 
+                height: 343px !important; 
+                margin: 0; 
+                padding: 16px;
+                box-sizing: border-box;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-smooth: never;
+                -webkit-font-smoothing: none;
+                image-rendering: pixelated;
             }
         }
     </style>
@@ -288,32 +309,32 @@
         </div>
     </div>
 
-    <!-- Printable Label Modal (High-Res 90.3mm x 29mm) -->
+    <!-- Printable Label Modal (High-Res 300 DPI Native for 90.3mm x 29mm) -->
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-4 shadow-2xl text-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm text-white">Print Label Generator (90.3mm × 29mm)</h3>
+                <h3 class="font-bold text-sm text-white">Print Label Generator (90.3mm × 29mm 300 DPI)</h3>
                 <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center overflow-x-auto">
-                <div id="printableArea" class="bg-white text-slate-950 p-2 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 341px; height: 110px; box-sizing: border-box;">
-                    <div class="flex flex-col justify-between h-full space-y-0.5">
+                <div id="printableArea" class="bg-white text-slate-950 p-4 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 1067px; height: 343px; box-sizing: border-box;">
+                    <div class="flex flex-col justify-between h-full space-y-2">
                         <div>
-                            <div class="font-black text-sm tracking-tighter leading-none">BRC WELDING</div>
-                            <div class="text-[9px] font-bold text-slate-700 leading-tight">BLUE RIDGE COLONY</div>
+                            <div class="font-black text-4xl tracking-tight leading-none text-black">BRC WELDING</div>
+                            <div class="text-2xl font-bold text-slate-800 tracking-wide mt-1">BLUE RIDGE COLONY</div>
                         </div>
-                        <div class="text-[8px] font-mono leading-tight text-slate-800 border-t border-slate-300 pt-0.5">
+                        <div class="text-lg font-mono font-bold leading-normal text-slate-900 border-t-2 border-slate-400 pt-2">
                             <div>• 6kW Fiber Laser</div>
                             <div>• 190T Press Brake</div>
                             <div>• Laser Welding</div>
                         </div>
-                        <div class="text-[8px] font-bold font-mono text-emerald-900 truncate max-w-[190px]">
+                        <div class="text-base font-bold font-mono text-emerald-950">
                             brcplasma2020-prog.github.io/catalog
                         </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center h-full pl-1 border-l border-slate-300">
-                        <img id="qrCodeImg" class="w-16 h-16 border border-slate-200" alt="Catalog QR">
-                        <span class="text-[7px] font-mono font-bold mt-0.5 text-center">SCAN CATALOG</span>
+                    <div class="flex flex-col items-center justify-center h-full pl-4 border-l-2 border-slate-300">
+                        <img id="qrCodeImg" class="w-56 h-56 border border-slate-300" alt="Catalog QR">
+                        <span class="text-xs font-mono font-black mt-1 text-center tracking-wider text-black">SCAN CATALOG</span>
                     </div>
                 </div>
             </div>
@@ -542,7 +563,7 @@
                 entities.forEach(ent => {
                     if (ent.type === 'LINE') {
                         ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.x2)); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.y2)); ctx.stroke();
                     } else if (ent.type === 'CIRCLE') {
                         let cx = ent.cx, cy = ent.cy;
                         if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
@@ -717,7 +738,7 @@
                 });
             } else {
                 dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n${h}\n`;
                 dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
@@ -771,7 +792,6 @@
         function logoutAdmin() { isAdmin = false; document.getElementById('adminPanel').classList.add('hidden'); renderCatalog(); }
         
         function openQrModal() {
-            // Strictly lowercase URL for GitHub Pages & high-res error-corrected QR generation
             const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/catalog/');
             document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=M&data=${targetUrl}`;
             document.getElementById('qrModal').classList.remove('hidden');
