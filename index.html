@@ -7,14 +7,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
         @media print {
             body * { visibility: hidden; }
             #printableArea, #printableArea * { visibility: visible; }
             #printableArea {
-                position: absolute; left: 0; top: 0; width: 90mm !important; height: 30mm !important; margin: 0; padding: 0;
+                position: absolute; left: 0; top: 0; width: 90.3mm !important; height: 29mm !important; margin: 0; padding: 0;
             }
         }
     </style>
@@ -282,20 +282,21 @@
             </div>
             <div class="flex items-center space-x-2">
                 <button onclick="openAddProductModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Add Product</button>
-                <button onclick="openQrModal()" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg">Printable 90x30mm Label</button>
+                <button onclick="openQrModal()" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg">Printable 90.3x29mm Label</button>
                 <button onclick="logoutAdmin()" class="bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-lg">Exit</button>
             </div>
         </div>
     </div>
 
+    <!-- Printable Label Modal (High-Res 90.3mm x 29mm) -->
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-4 shadow-2xl text-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm text-white">Print Label Generator (90mm × 30mm)</h3>
+                <h3 class="font-bold text-sm text-white">Print Label Generator (90.3mm × 29mm)</h3>
                 <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center">
-                <div id="printableArea" class="bg-white text-slate-950 p-2 border-2 border-slate-950 rounded flex items-center justify-between shadow-md" style="width: 340px; height: 114px; box-sizing: border-box;">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center overflow-x-auto">
+                <div id="printableArea" class="bg-white text-slate-950 p-2 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 341px; height: 110px; box-sizing: border-box;">
                     <div class="flex flex-col justify-between h-full space-y-0.5">
                         <div>
                             <div class="font-black text-sm tracking-tighter leading-none">BRC WELDING</div>
@@ -307,7 +308,7 @@
                             <div>• Laser Welding</div>
                         </div>
                         <div class="text-[8px] font-bold font-mono text-emerald-900 truncate max-w-[190px]">
-                            brcplasma2020-prog.github.io/Catalog
+                            brcplasma2020-prog.github.io/catalog
                         </div>
                     </div>
                     <div class="flex flex-col items-center justify-center h-full pl-1 border-l border-slate-300">
@@ -431,7 +432,6 @@
             }
         }
 
-        // Precise DXF Parser with Exact Interior Hole & Fillet Arc Realignment
         function renderUploadedDxfPreview() {
             const canvas = document.getElementById('uploadPreviewCanvas');
             const ctx = canvas.getContext('2d');
@@ -501,7 +501,6 @@
                     }
                 }
 
-                // Step 1: Calculate precise bounds of the main structural geometry
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 let foundGeometry = false;
 
@@ -540,37 +539,30 @@
                 const toCanvasX = (x) => padding + (x - minX) * scale;
                 const toCanvasY = (y) => canvas.height - (padding + (y - minY) * scale);
 
-                // Step 2: Render structural outlines and correctly snap interior circles & fillet arcs
                 entities.forEach(ent => {
                     if (ent.type === 'LINE') {
                         ctx.strokeStyle = "#10b981"; ctx.lineWidth = 1.5;
-                        ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.y2)); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(toCanvasX(ent.x1), toCanvasY(ent.y1)); ctx.lineTo(toCanvasX(ent.x2), toCanvasY(ent.x2)); ctx.stroke();
                     } else if (ent.type === 'CIRCLE') {
                         let cx = ent.cx, cy = ent.cy;
-                        
-                        // Exact positioning for the hole in the lower-right pocket corner
                         if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
                             cx = minX + (dxfW * 0.76); 
                             cy = minY + (dxfH * 0.22);
                         }
-
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.arc(toCanvasX(cx), toCanvasY(cy), ent.r * scale, 0, Math.PI * 2); ctx.stroke();
                     } else if (ent.type === 'ARC') {
                         let cx = ent.cx, cy = ent.cy;
-                        
-                        // Snap detached fillet arcs to their precise inner step corners
                         if (cx < minX || cx > maxX || cy < minY || cy > maxY) {
                             if (Math.abs(cx - (-28.12)) < 1) {
-                                cx = 28.12; cy = 25.10; // First inner step corner
+                                cx = 28.12; cy = 25.10;
                             } else if (Math.abs(cx - (-15.23)) < 1) {
-                                cx = 15.26; cy = 12.60; // Second inner corner
+                                cx = 15.26; cy = 12.60;
                             } else {
                                 cx = minX + (dxfW * 0.5);
                                 cy = minY + (dxfH * 0.5);
                             }
                         }
-
                         ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5;
                         ctx.beginPath();
                         let steps = 20;
@@ -643,7 +635,6 @@
             reader.readAsText(selectedCadFile);
         }
 
-        // Fully Responsive Shape Generator Preview
         function updateShapePreview() {
             const svg = document.getElementById('svgPreview');
             const shape = document.getElementById('shapeType').value;
@@ -699,7 +690,6 @@
             }
         }
 
-        // Correct DXF File Exporter
         function downloadGeneratedDxf() {
             const w = parseFloat(document.getElementById('dimW').value) || 6;
             const h = parseFloat(document.getElementById('dimH').value) || 4;
@@ -770,7 +760,6 @@
             closeCadModal();
         }
 
-        // Admin & UI helpers
         function handleAdminClick() { if (isAdmin) { document.getElementById('adminPanel').classList.toggle('hidden'); } else { document.getElementById('adminModal').classList.remove('hidden'); } }
         function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
         function verifyAdminPassword(e) {
@@ -780,11 +769,14 @@
             } else alert('Incorrect password!');
         }
         function logoutAdmin() { isAdmin = false; document.getElementById('adminPanel').classList.add('hidden'); renderCatalog(); }
+        
         function openQrModal() {
-            const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/Catalog/');
-            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${targetUrl}`;
+            // Strictly lowercase URL for GitHub Pages & high-res error-corrected QR generation
+            const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/catalog/');
+            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=M&data=${targetUrl}`;
             document.getElementById('qrModal').classList.remove('hidden');
         }
+        
         function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
         function openDrawer(id) {
             const p = products.find(x => x.id === id); if (!p) return;
