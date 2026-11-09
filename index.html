@@ -12,7 +12,7 @@
         
         @media print {
             @page {
-                size: 90.3mm 29mm;
+                size: 90.3mm 29mm landscape;
                 margin: 0;
             }
             body * { visibility: hidden; }
@@ -25,7 +25,7 @@
                 position: absolute; 
                 left: 0; 
                 top: 0; 
-                /* 300 DPI exact dimensions: 90.3mm = 1067px, 29mm = 343px */
+                /* Landscape 300 DPI exact dimensions: 90.3mm width = 1067px, 29mm height = 343px */
                 width: 1067px !important; 
                 height: 343px !important; 
                 margin: 0; 
@@ -36,6 +36,10 @@
                 font-smooth: never;
                 -webkit-font-smoothing: none;
                 image-rendering: pixelated;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
             }
         }
     </style>
@@ -309,15 +313,15 @@
         </div>
     </div>
 
-    <!-- Printable Label Modal (High-Res 300 DPI Native for 90.3mm x 29mm) -->
+    <!-- Printable Label Modal (High-Res Landscape 90.3mm x 29mm) -->
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-4 shadow-2xl text-xs space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-4 shadow-2xl text-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm text-white">Print Label Generator (90.3mm × 29mm 300 DPI)</h3>
+                <h3 class="font-bold text-sm text-white">Print Label Generator (Landscape 90.3mm × 29mm)</h3>
                 <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center overflow-x-auto">
-                <div id="printableArea" class="bg-white text-slate-950 p-4 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 1067px; height: 343px; box-sizing: border-box;">
+                <div id="printableArea" class="bg-white text-slate-950 p-4 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 1067px; height: 343px; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                     <div class="flex flex-col justify-between h-full space-y-2">
                         <div>
                             <div class="font-black text-4xl tracking-tight leading-none text-black">BRC WELDING</div>
@@ -738,7 +742,7 @@
                 });
             } else {
                 dxfContent += `0\nLINE\n8\n0\n10\n0.0\n20\n0.0\n11\n${w}\n21\n${h}\n`;
-                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n${h}\n`;
+                dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n0.0\n11\n0.0\n21\n${h}\n`;
                 dxfContent += `0\nLINE\n8\n0\n10\n${w}\n20\n${h}\n11\n0.0\n21\n0.0\n`;
             }
 
