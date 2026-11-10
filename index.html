@@ -808,7 +808,7 @@
         function logoutAdmin() { isAdmin = false; document.getElementById('adminPanel').classList.add('hidden'); renderCatalog(); }
         
         function openQrModal() {
-            const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/catalog/');
+            const targetUrl = encodeURIComponent('https://brcplasma2020-prog.github.io/Catalog/');
             document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=M&data=${targetUrl}`;
             document.getElementById('qrModal').classList.remove('hidden');
         }
