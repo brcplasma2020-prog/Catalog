@@ -10,10 +10,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
+        /* STRICT PRINT STYLING FOR BROTHER QL 29mm x 90.3mm THERMAL TAPE */
         @media print {
             @page {
                 size: 90.3mm 29mm landscape;
                 margin: 0;
+            }
+            html, body {
+                width: 90.3mm;
+                height: 29mm;
+                margin: 0;
+                padding: 0;
+                background: #ffffff !important;
             }
             body * { visibility: hidden; }
             #printableArea, #printableArea * { 
@@ -25,20 +33,26 @@
                 position: absolute; 
                 left: 0; 
                 top: 0; 
-                width: 100vw !important; 
-                height: 100vh !important; 
+                width: 90.3mm !important; 
+                height: 29mm !important; 
                 margin: 0; 
-                padding: 3mm 4mm;
-                box-sizing: border-box;
+                padding: 1.5mm 2.5mm !important;
+                box-sizing: border-box !important;
                 background: #ffffff !important;
                 color: #000000 !important;
                 display: flex !important;
                 flex-direction: row !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                font-smooth: never;
-                -webkit-font-smoothing: none;
+                overflow: hidden !important;
+                border: none !important;
             }
+            .print-title { font-size: 14pt !important; font-weight: 900 !important; line-height: 1 !important; color: #000 !important; }
+            .print-subtitle { font-size: 8.5pt !important; font-weight: 800 !important; margin-top: 1pt !important; color: #000 !important; }
+            .print-list { font-size: 7.5pt !important; font-weight: 700 !important; line-height: 1.15 !important; color: #000 !important; }
+            .print-url { font-size: 6.5pt !important; font-weight: 800 !important; color: #000 !important; }
+            .print-qr-label { font-size: 6pt !important; font-weight: 900 !important; margin-top: 1pt !important; color: #000 !important; }
+            .print-qr-img { width: 22mm !important; height: 22mm !important; }
         }
     </style>
 </head>
@@ -311,7 +325,7 @@
         </div>
     </div>
 
-    <!-- Printable Label Modal (Large Scaled Text for Thermal Stock) -->
+    <!-- Printable Label Modal (High-Res Physical Units for Brother QL 90.3mm x 29mm) -->
     <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-4 shadow-2xl text-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -319,24 +333,24 @@
                 <button onclick="closeQrModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center overflow-x-auto">
-                <div id="printableArea" class="bg-white text-slate-950 p-2.5 border-2 border-slate-950 rounded flex items-center justify-between shadow-md shrink-0 w-full" style="max-width: 520px; height: 165px; box-sizing: border-box;">
-                    <div class="flex flex-col justify-between h-full pr-2 flex-grow">
+                <div id="printableArea" class="bg-white text-slate-950 rounded flex items-center justify-between shadow-md shrink-0" style="width: 90.3mm; height: 29mm; padding: 1.5mm 2.5mm; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div class="flex flex-col justify-between h-full pr-1 flex-grow">
                         <div>
-                            <div class="font-black text-2xl tracking-tight leading-none text-black">BRC WELDING</div>
-                            <div class="text-sm font-extrabold text-slate-900 tracking-wide mt-0.5">BLUE RIDGE COLONY</div>
+                            <div class="font-black print-title tracking-tight text-black">BRC WELDING</div>
+                            <div class="font-bold print-subtitle text-slate-900 tracking-wide">BLUE RIDGE COLONY</div>
                         </div>
-                        <div class="text-[11px] font-mono font-bold leading-tight text-slate-900 border-t border-slate-400 pt-1 space-y-0.5">
+                        <div class="font-mono print-list text-black border-t border-slate-400 pt-0.5">
                             <div>• 6kW Fiber Laser</div>
                             <div>• 190T Press Brake</div>
                             <div>• Laser Welding</div>
                         </div>
-                        <div class="text-[10px] font-bold font-mono text-black truncate">
+                        <div class="font-bold font-mono print-url text-black truncate">
                             brcplasma2020-prog.github.io/catalog
                         </div>
                     </div>
-                    <div class="flex flex-col items-center justify-center h-full pl-2 border-l border-slate-300 shrink-0">
-                        <img id="qrCodeImg" class="w-24 h-24 border border-slate-300" alt="Catalog QR">
-                        <span class="text-[9px] font-mono font-black mt-0.5 text-center tracking-wider text-black">SCAN CATALOG</span>
+                    <div class="flex flex-col items-center justify-center h-full pl-1.5 border-l border-slate-300 shrink-0">
+                        <img id="qrCodeImg" class="print-qr-img border border-slate-300" alt="Catalog QR">
+                        <span class="font-mono print-qr-label text-center tracking-wider text-black">SCAN CATALOG</span>
                     </div>
                 </div>
             </div>
